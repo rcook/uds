@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bygge"
+version = "0.1.0"
+description = "Python project build and development tool - CLI for workspace management (Norwegian: 'to build')"
+requires-python = ">=3.14"
+license = "MIT"
+readme = "README.md"
+authors = [{name = "Richard Cook"}]
+keywords = ["bygge", "build", "cli", "tool", "workspace", "monorepo", "development", "python"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+dependencies = ["click", "libcst", "packaging"]
+
+[project.urls]
+Repository = "https://github.com/rcook/bygge"
+Issues = "https://github.com/rcook/bygge/issues"
+
+[project.optional-dependencies]
+dev = ["basedpyright", "bump-my-version", "pytest", "pytest-cov", "ruff", "vulture"]
+
+[project.scripts]
+bygge = "bygge.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bygge"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]
+norecursedirs = ["src", ".venv", "build", "dist", "*.egg-info"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "ANN"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.basedpyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests"]
+exclude = ["**/__pycache__", "**/build", "**/dist"]
+reportAny = "error"
+reportExplicitAny = "error"
+reportImplicitStringConcatenation = "error"
+reportPrivateImportUsage = "error"
+reportPrivateUsage = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+reportUnusedCallResult = "error"
+reportUnusedParameter = "error"
+
+[tool.vulture]
+ignore_decorators = ["@main.command"]
+paths = ["src"]
+
+[tool.bumpversion]
+current_version = "0.1.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+message = "Bump version: {current_version} -> {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "src/bygge/__init__.py"
+search = 'VERSION = "{current_version}"'
+replace = 'VERSION = "{new_version}"'

@@ -1,0 +1,191 @@
+from __future__ import annotations
+
+from pathlib import Path
+from tomllib import TOMLDecodeError
+
+import pytest
+
+from bygge.contracts import Input
+from bygge.package_info import PackageInfo
+from bygge.package_info.package_info import SkinnyContext
+from bygge.package_meta import PackageMeta
+from bygge.plugins import (
+    Basedpyright,
+    Hatchling,
+    MagicSources,
+    Plugins,
+    Pytest,
+    PytestCov,
+    PytestDiscovery,
+    Setuptools,
+)
+from bygge.util import load_toml
+
+
+def test_package_meta_load(tmp_package: Path) -> None:
+    """Test PackageMeta.load parses pyproject.toml."""
+    pyproject_path = tmp_package / "pyproject.toml"
+
+    meta = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=["dev"])
+
+    assert meta is not None
+    assert meta.name == "test_pkg"
+    assert meta.package_dir == tmp_package
+    assert meta.build_backend == "hatchling.build"
+    assert len(meta.build_requires) > 0
+    assert len(meta.requirements) > 0
+
+
+def test_package_meta_load_missing_name(tmp_workspace: Path) -> None:
+    """Test PackageMeta.load returns None when name is missing."""
+    pyproject_path = tmp_workspace / "invalid.toml"
+    _ = pyproject_path.write_text("[project]\nversion = '0.1.0'\n")
+
+    meta = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
+
+    assert meta is None
+
+
+def test_package_meta_load_missing_build_backend(
+    tmp_workspace: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Test PackageMeta.load returns None when build backend is missing."""
+    pyproject_path = tmp_workspace / "invalid.toml"
+    _ = pyproject_path.write_text("[project]\nname = 'test'\n")
+
+    meta = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
+
+    assert meta is None
+    assert "does not specify build backend" in caplog.text
+
+
+def test_package_meta_load_invalid_toml(tmp_workspace: Path) -> None:
+    """Test PackageMeta.load handles invalid TOML."""
+    pyproject_path = tmp_workspace / "invalid.toml"
+    _ = pyproject_path.write_text("invalid toml content [[[")
+
+    # load_toml raises an exception on invalid TOML
+    with pytest.raises(TOMLDecodeError):
+        _ = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
+
+
+def test_package_info_make(tmp_package: Path) -> None:
+    """Test PackageInfo.make creates package info."""
+    plugins = Plugins(
+        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_tools=[PytestDiscovery()],
+        test_tools=[Pytest()],
+        coverage_tools=[PytestCov()],
+        type_check_tools=[Basedpyright()],
+    )
+    pyproject_path = tmp_package / "pyproject.toml"
+    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+
+    info = PackageInfo.make(plugins=plugins, input=input)
+
+    assert info is not None
+    assert info.name == "test_pkg"
+
+
+def test_package_info_make_invalid_toml(tmp_workspace: Path) -> None:
+    """Test PackageInfo.make handles invalid TOML."""
+    plugins = Plugins(
+        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_tools=[PytestDiscovery()],
+        test_tools=[Pytest()],
+        coverage_tools=[PytestCov()],
+        type_check_tools=[Basedpyright()],
+    )
+    pyproject_path = tmp_workspace / "invalid.toml"
+    _ = pyproject_path.write_text("invalid toml [[[")
+    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+
+    # load_toml raises an exception on invalid TOML
+    with pytest.raises(TOMLDecodeError):
+        _ = PackageInfo.make(plugins=plugins, input=input)
+
+
+def test_package_info_make_missing_name(tmp_workspace: Path) -> None:
+    """Test PackageInfo.make returns None when name is missing."""
+    plugins = Plugins(
+        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_tools=[PytestDiscovery()],
+        test_tools=[Pytest()],
+        coverage_tools=[PytestCov()],
+        type_check_tools=[Basedpyright()],
+    )
+    pyproject_path = tmp_workspace / "invalid.toml"
+    _ = pyproject_path.write_text("[project]\nversion = '0.1.0'\n")
+    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+
+    info = PackageInfo.make(plugins=plugins, input=input)
+
+    assert info is None
+
+
+def test_package_info_get_name(tmp_package: Path) -> None:
+    """Test PackageInfo._get_name extracts package name."""
+    plugins = Plugins(
+        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_tools=[PytestDiscovery()],
+        test_tools=[Pytest()],
+        coverage_tools=[PytestCov()],
+        type_check_tools=[Basedpyright()],
+    )
+    pyproject_path = tmp_package / "pyproject.toml"
+    blob = load_toml(pyproject_path)
+    skinny_ctx = SkinnyContext(
+        plugins=plugins,
+        input=Input(pyproject_path=pyproject_path, optional_deps=[]),
+        blob=blob,
+    )
+
+    name = skinny_ctx.get_name()
+
+    assert name == "test_pkg"
+
+
+def test_package_info_get_source_dirs(tmp_package: Path) -> None:
+    """Test PackageInfo._get_source_dirs finds source directories."""
+    plugins = Plugins(
+        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_tools=[PytestDiscovery()],
+        test_tools=[Pytest()],
+        coverage_tools=[PytestCov()],
+        type_check_tools=[Basedpyright()],
+    )
+    pyproject_path = tmp_package / "pyproject.toml"
+    blob = load_toml(pyproject_path)
+    skinny_ctx = SkinnyContext(
+        plugins=plugins,
+        input=Input(pyproject_path=pyproject_path, optional_deps=["dev"]),
+        blob=blob,
+    )
+
+    source_dirs = skinny_ctx.get_source_dirs()
+
+    assert source_dirs is not None
+    assert len(source_dirs) > 0
+
+
+def test_package_info_get_test_dirs(tmp_package: Path) -> None:
+    """Test PackageInfo._get_test_dirs finds test directories."""
+    plugins = Plugins(
+        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_tools=[PytestDiscovery()],
+        test_tools=[Pytest()],
+        coverage_tools=[PytestCov()],
+        type_check_tools=[Basedpyright()],
+    )
+    pyproject_path = tmp_package / "pyproject.toml"
+    blob = load_toml(pyproject_path)
+    skinny_ctx = SkinnyContext(
+        plugins=plugins,
+        input=Input(pyproject_path=pyproject_path, optional_deps=["dev"]),
+        blob=blob,
+    )
+
+    test_dirs = skinny_ctx.get_test_dirs()
+
+    assert test_dirs is not None
+    assert len(test_dirs) > 0

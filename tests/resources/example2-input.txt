@@ -1,0 +1,59 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import click
+
+from bygge.workspace import Workspace
+
+
+def info(workspace: Workspace) -> None:
+    """Display information about the current bygge environment."""
+    executable_unresolved = Path(sys.executable)
+    executable_resolved = executable_unresolved.resolve()
+    argv0_unresolved = Path(sys.argv[0])
+    argv0_resolved = argv0_unresolved.resolve()
+
+    click.echo("=== BYGGE Environment Information ===")
+    click.echo()
+
+    # Python executable
+    if executable_unresolved != executable_resolved:
+        click.echo(f"Python executable: {executable_unresolved}")
+        click.echo(f"  (resolves to: {executable_resolved})")
+    else:
+        click.echo(f"Python executable: {executable_resolved}")
+    click.echo(f"Python version: {sys.version.split()[0]}")
+    click.echo()
+
+    # BYGGE invocation
+    if argv0_unresolved != argv0_resolved:  # pragma: no cover
+        click.echo(f"Command invoked as: {argv0_unresolved}")
+        click.echo(f"  (resolves to: {argv0_resolved})")
+    else:
+        click.echo(f"Command invoked as: {argv0_resolved}")
+    if argv0_resolved.suffix == ".py":
+        click.echo(f"Running as Python script: {argv0_resolved}")
+    click.echo()
+
+    # Workspace information
+    click.echo(f"Current working directory: {workspace.cwd}")
+    click.echo(f"Workspace directory: {workspace.workspace_dir}")
+    click.echo(f"Package root directory: {workspace.package_root_dir}")
+    click.echo(f"Virtual environment directory: {workspace.venv_dir}")
+    click.echo()
+
+    # Check if running from project venv using sys.prefix
+    # This is more reliable than checking paths because venvs use symlinks
+    if Path(sys.prefix).resolve() == workspace.venv_dir.resolve():
+        click.echo("✓ Running from project's virtual environment")
+    else:
+        click.echo("✗ NOT running from project's virtual environment")
+
+    # Also check if the bygge binary itself is from the venv
+    try:
+        argv0_resolved.relative_to(workspace.venv_dir)
+        click.echo("✓ BYGGE binary is from project's virtual environment")
+    except ValueError:
+        click.echo("✗ BYGGE binary is NOT from project's virtual environment")

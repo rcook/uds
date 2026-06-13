@@ -1,0 +1,4 @@
+[workspace]
+venv_dir = ".venv"
+optional_deps = ["dev"]
+coverage_baseline = 100

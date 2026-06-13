@@ -1,0 +1,78 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Self
+
+from bygge.contracts import CoverageTool, Input, Payload, TypeCheckTool, UnitTestTool
+from bygge.plugins import Plugins
+from bygge.util import TomlValue, load_toml, query_toml, try_dict, try_str
+
+from .context import Context
+from .tool_info import ToolInfo
+
+
+@dataclass(frozen=True, slots=True)
+class SkinnyContext:
+    plugins: Plugins
+    input: Input
+    blob: TomlValue
+
+    def get_name(self) -> str | None:
+        return try_str(query_toml(self.blob, "project.name"))
+
+    def get_source_dirs(self) -> list[Path] | None:
+        for f in self.plugins.source_dir_tools:
+            temp = f.fetch_source_dirs(input=self.input, blob=self.blob)
+            if temp is not None:
+                return temp
+        return None
+
+    def get_test_dirs(self) -> list[Path] | None:
+        for f in self.plugins.test_dir_tools:
+            temp = f.fetch_test_dirs(input=self.input, blob=self.blob)
+            if temp is not None:
+                return temp
+        return None
+
+
+@dataclass(frozen=True, slots=True)
+class PackageInfo:
+    name: str
+    test: ToolInfo[UnitTestTool] | None
+    coverage: ToolInfo[CoverageTool] | None
+    type_check: ToolInfo[TypeCheckTool] | None
+
+    @classmethod
+    def make(cls: type[Self], plugins: Plugins, input: Input) -> Self | None:
+        obj = try_dict(load_toml(input.pyproject_path))
+        if obj is None:  # pragma: no cover - TOML root is always a dict
+            return None
+
+        skinny_ctx = SkinnyContext(plugins=plugins, input=input, blob=obj)
+
+        name = skinny_ctx.get_name()
+        if name is None:
+            return None
+
+        source_dirs = skinny_ctx.get_source_dirs()
+        if source_dirs is None:
+            return None
+
+        test_dirs = skinny_ctx.get_test_dirs() or []
+
+        payload = Payload(source_dirs=source_dirs, test_dirs=test_dirs)
+
+        ctx = Context(
+            plugins=skinny_ctx.plugins,
+            input=skinny_ctx.input,
+            blob=skinny_ctx.blob,
+            payload=payload,
+        )
+
+        return cls(
+            name=name,
+            test=ToolInfo[UnitTestTool].find(ctx=ctx, tools=ctx.plugins.test_tools),
+            coverage=ToolInfo[CoverageTool].find(ctx=ctx, tools=ctx.plugins.coverage_tools),
+            type_check=ToolInfo[TypeCheckTool].find(ctx=ctx, tools=ctx.plugins.type_check_tools),
+        )

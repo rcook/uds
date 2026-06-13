@@ -1,0 +1,56 @@
+name: Publish
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install package with dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Check formatting
+        run: |
+          ruff format --check src/ tests/
+          ruff check --select I src/ tests/
+
+      - name: Lint
+        run: ruff check src/ tests/
+
+      - name: Type check
+        run: basedpyright
+
+      - name: Test with coverage
+        run: pytest --cov=bygge --cov-report=term-missing --cov-fail-under=100
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

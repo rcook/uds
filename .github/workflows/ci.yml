@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install package with dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Check formatting
+        run: |
+          ruff format --check src/ tests/
+          ruff check --select I src/ tests/
+
+      - name: Lint
+        run: ruff check src/ tests/
+
+      - name: Type check
+        run: basedpyright
+
+      - name: Test with coverage
+        run: pytest --cov=bygge --cov-report=term-missing --cov-fail-under=100

@@ -1,0 +1,45 @@
+{
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "[jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "[toml]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "basedpyright.analysis.typeCheckingMode": "recommended",
+  "files.exclude": {
+    ".venv": true,
+    "**/__pycache__": true,
+    "**/.basedpyright": true,
+    "**/.coverage": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/*.egg-info": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/htmlcov": true
+  },
+  "python.analysis.autoSearchPaths": false,
+  "python.analysis.typeCheckingMode": "off",
+  "ruff.nativeServer": "on",
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/.ruff_cache": true,
+    "**/htmlcov": true,
+    ".venv": true
+  }
+}

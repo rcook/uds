@@ -1,0 +1,7 @@
+from __future__ import annotations
+
+from typing import Never, NoReturn
+
+
+def assert_never(obj: Never) -> NoReturn:  # pragma: nocover
+    raise AssertionError(f"Unhandled value: {obj!r}")
