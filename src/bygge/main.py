@@ -120,7 +120,7 @@ def _delegate_to_venv_bygge(
 
     if IS_WINDOWS:
         proc = run_subprocess(
-            [str(venv_bygge_path), *sys.argv[1:]], cwd=Path.cwd(), check=True, yes=True
+            [str(venv_bygge_path), *sys.argv[1:]], cwd=Path.cwd(), check=False, yes=True
         )
         sys.exit(proc.returncode)
     else:
