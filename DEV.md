@@ -19,8 +19,11 @@ cd bygge
 # Create virtual environment
 python3.14 -m venv .venv --upgrade-deps
 
-# Install in editable mode with dev dependencies
+# Install in editable mode with dev dependencies (Linux)
 .venv/bin/pip install -e ".[dev]"
+
+# Install in editable mode with dev dependencies (Windows)
+.venv/Scripts/pip install -e ".[dev]"
 ```
 
 Or in one command:
