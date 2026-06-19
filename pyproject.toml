@@ -52,8 +52,6 @@ quote-style = "double"
 [tool.basedpyright]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"
-venvPath = "."
-venv = ".venv"
 include = ["src", "tests"]
 exclude = ["**/__pycache__", "**/build", "**/dist"]
 reportAny = "error"
