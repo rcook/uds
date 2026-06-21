@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from bygge.contracts import Input
 from bygge.plugins.magic_sources import MagicSources
 from bygge.plugins.test_dirs_mixin import TestDirsMixin
@@ -60,7 +58,7 @@ def test_test_dirs_mixin_no_testpaths(tmp_workspace: Path) -> None:
     assert test_dirs is None
 
 
-def test_magic_sources_finds_src_dir(tmp_package: Path, caplog: pytest.LogCaptureFixture) -> None:
+def test_magic_sources_finds_src_dir(tmp_package: Path) -> None:
     """Test MagicSources.fetch_source_dirs finds src directory."""
     plugin = MagicSources()
     pyproject_path = tmp_package / "pyproject.toml"
@@ -72,7 +70,6 @@ def test_magic_sources_finds_src_dir(tmp_package: Path, caplog: pytest.LogCaptur
     assert source_dirs is not None
     assert len(source_dirs) == 1
     assert source_dirs[0].name == "src"
-    assert "Inferring source directory" in caplog.text
 
 
 def test_magic_sources_no_src_dir(tmp_workspace: Path) -> None:

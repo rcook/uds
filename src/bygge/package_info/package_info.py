@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from logging import debug
 from pathlib import Path
 from typing import Self
 
@@ -22,18 +23,24 @@ class SkinnyContext:
         return try_str(query_toml(self.blob, "project.name"))
 
     def get_source_dirs(self) -> list[Path] | None:
+        source_dirs = None
         for f in self.plugins.source_dir_tools:
             temp = f.fetch_source_dirs(input=self.input, blob=self.blob)
-            if temp is not None:
-                return temp
-        return None
+            count = 0 if temp is None else len(temp)
+            debug(f"Plugin {type(f).__name__}: found {count} source directories")
+            if temp is not None and source_dirs is None:
+                source_dirs = temp
+        return source_dirs
 
     def get_test_dirs(self) -> list[Path] | None:
+        test_dirs = None
         for f in self.plugins.test_dir_tools:
             temp = f.fetch_test_dirs(input=self.input, blob=self.blob)
-            if temp is not None:
-                return temp
-        return None
+            count = 0 if temp is None else len(temp)
+            debug(f"Plugin {type(f).__name__}: found {count} test directories")
+            if temp is not None and test_dirs is None:
+                test_dirs = temp
+        return test_dirs
 
 
 @dataclass(frozen=True, slots=True)
