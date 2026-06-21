@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from logging import debug, warning
 from pathlib import Path
 from typing import Any, override
 
@@ -100,7 +101,7 @@ def _get_delegate_venv_bygge_path(workspace: Workspace) -> Path | None:
     if venv_bygge_path.is_file():  # pragma: nocover
         return venv_bygge_path
 
-    logger.warning(
+    warning(
         f"Project virtual environment exists but bygge not found at {venv_bygge_path}. "
         + "Continuing with current bygge instance."
     )
@@ -233,7 +234,7 @@ def main(
         if ctx.invoked_subcommand == "init":
             # Warn if running init from project's own venv
             if _is_running_from_project_venv(workspace):
-                logger.warning(
+                warning(
                     "Running 'init' from the project's own virtual environment. "
                     + "Consider using a global or external bygge installation for bootstrapping."
                 )
@@ -241,9 +242,9 @@ def main(
             # For non-init commands, check if we should delegate to venv bygge
             if (venv_bygge_path := _get_delegate_venv_bygge_path(workspace)) is not None:
                 if do_not_delegate:
-                    logger.warning("--do-not-delegate was passed so we'll keep using this bygge")
+                    debug("--do-not-delegate was passed so we'll keep using this bygge")
                 else:
-                    logger.warning(
+                    warning(
                         "Running bygge from outside project's virtual environment. "
                         + f"Delegating to {venv_bygge_path}"
                     )
