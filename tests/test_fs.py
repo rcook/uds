@@ -44,7 +44,7 @@ def test_walk_dir_basics(tmp_path: Path) -> None:
         start_dir: Path, ignore_dir_names: Iterable[str] | None | Unset = UNSET
     ) -> list[str]:
         paths: list[str] = []
-        for dir, file_names in walk_dir(start_dir=start_dir, ignore_dir_names=ignore_dir_names):
+        for dir, file_names in walk_dir(start_dir=start_dir, ignore_dir_globs=ignore_dir_names):
             for f in file_names:
                 paths.append((dir / f).relative_to(tmp_path).as_posix())
         return sorted(paths)

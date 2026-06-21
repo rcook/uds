@@ -3,12 +3,13 @@ from __future__ import annotations
 import os
 import shlex
 from collections.abc import Generator, Iterable
+from fnmatch import fnmatch
 from logging import warning
 from pathlib import Path
 
 import mslex
 
-from bygge.constants import DOT_FILE_NAME, IGNORE_DIR_NAMES, IS_WINDOWS
+from bygge.constants import DOT_FILE_NAME, IGNORE_DIR_GLOBS, IS_WINDOWS
 
 from .assert_never import assert_never
 from .unset import UNSET, Unset
@@ -28,23 +29,27 @@ def find_dot_file(start_dir: Path) -> Path | None:
         d = parent
 
 
-def walk_dir(
-    start_dir: Path, ignore_dir_names: Iterable[str] | None | Unset = UNSET
-) -> Generator[tuple[Path, list[str]]]:
-    ignore_dir_names0: Iterable[str]
-    match ignore_dir_names:
+def is_ignored_dir_name(name: str, globs: Iterable[str] | None | Unset = UNSET) -> bool:
+    globs0: Iterable[str]
+    match globs:
         case Iterable() as c:
-            ignore_dir_names0 = c
+            globs0 = c
         case None:
-            ignore_dir_names0 = []
+            globs0 = []
         case Unset():
-            ignore_dir_names0 = IGNORE_DIR_NAMES
-        case _:  # pragma: nocover
-            assert_never(ignore_dir_names)
+            globs0 = IGNORE_DIR_GLOBS
+        case _:  # pragma: nocover  # pyright: ignore[reportUnnecessaryComparison]
+            assert_never(globs0)
+    return any(fnmatch(name, glob) for glob in globs0)
+
+
+def walk_dir(
+    start_dir: Path, ignore_dir_globs: Iterable[str] | None | Unset = UNSET
+) -> Generator[tuple[Path, list[str]]]:
 
     for dir, dir_names, file_names in start_dir.walk():
-        for d in ignore_dir_names0:
-            if d in dir_names:
+        for d in dir_names:
+            if is_ignored_dir_name(d, ignore_dir_globs):
                 dir_names.remove(d)
 
         yield dir, file_names

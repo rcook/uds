@@ -10,13 +10,14 @@ BOOTSTRAP_PYTHON_PATH: Path = Path(sys.executable)
 
 IS_WINDOWS = system().lower() == "windows"
 
-IGNORE_DIR_NAMES: set[str] = {
+IGNORE_DIR_GLOBS: set[str] = {
     ".git",
     ".pytest_cache",
     ".ruff_cache",
     "__pycache__",
     ".venv",
     "htmlcov",
+    "*.egg-info",
 }
 
 PYPROJECT_FILE_NAME: str = "pyproject.toml"
