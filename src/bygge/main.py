@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any, override
 
 import click
-from click import Context, Group, argument, option, pass_context, pass_obj
+from click import Context, Group, argument, option, pass_context, pass_obj, version_option
 
-from bygge import ByggeError
+from bygge import VERSION, ByggeError
 from bygge.cmd import (
     check,
     commit_unchecked,
@@ -192,6 +192,7 @@ class ByggeGroup(Group):
 
 @click.group(cls=ByggeGroup)
 @pass_context
+@version_option(VERSION)
 @CWD_OPT
 @WORKSPACE_DIR_OPT
 @option(
