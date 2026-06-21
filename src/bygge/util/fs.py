@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
+import shlex
 from collections.abc import Generator, Iterable
 from logging import warning
 from pathlib import Path
+
+import mslex
 
 from bygge.constants import DOT_FILE_NAME, IGNORE_DIR_NAMES, IS_WINDOWS
 
@@ -73,3 +76,10 @@ def hackily_canonicalize(s: str) -> Path:  # pragma: nocover
 
     warning(f"Could not determine canonical path for {p}")
     return p
+
+
+def shell_join(cmd: list[str]) -> str:  # pragma: nocover
+    if IS_WINDOWS:
+        return mslex.join(split_command=cmd)
+    else:
+        return shlex.join(split_command=cmd)

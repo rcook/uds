@@ -9,8 +9,17 @@ description = "Python project build and development tool - CLI for workspace man
 requires-python = ">=3.14"
 license = "MIT"
 readme = "README.md"
-authors = [{name = "Richard Cook"}]
-keywords = ["bygge", "build", "cli", "tool", "workspace", "monorepo", "development", "python"]
+authors = [{ name = "Richard Cook" }]
+keywords = [
+    "bygge",
+    "build",
+    "cli",
+    "tool",
+    "workspace",
+    "monorepo",
+    "development",
+    "python",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
@@ -18,14 +27,21 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
-dependencies = ["click", "libcst", "packaging"]
+dependencies = ["click", "libcst", "mslex", "packaging"]
 
 [project.urls]
 Repository = "https://github.com/rcook/bygge"
 Issues = "https://github.com/rcook/bygge/issues"
 
 [project.optional-dependencies]
-dev = ["basedpyright", "bump-my-version", "pytest", "pytest-cov", "ruff", "vulture"]
+dev = [
+    "basedpyright",
+    "bump-my-version",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "vulture",
+]
 
 [project.scripts]
 bygge = "bygge.main:main"
