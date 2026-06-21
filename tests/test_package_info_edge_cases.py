@@ -36,11 +36,11 @@ def test_package_info_get_test_dirs_none_found(tmp_workspace: Path) -> None:
     )
 
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     blob = load_toml(pyproject_path)
     skinny_ctx = SkinnyContext(

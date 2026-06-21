@@ -8,5 +8,5 @@ from bygge.util import TomlValue
 from .input import Input
 
 
-class SourceDirTool(Protocol):
-    def fetch_source_dirs(self, input: Input, blob: TomlValue) -> list[Path] | None: ...
+class TestDirPlugin(Protocol):
+    def fetch_test_dirs(self, input: Input, blob: TomlValue) -> list[Path] | None: ...

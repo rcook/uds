@@ -7,5 +7,5 @@ from bygge.util import TomlValue
 from .input import Input
 
 
-class Tool(Protocol):
+class Plugin(Protocol):
     def is_installed(self, input: Input, blob: TomlValue) -> bool: ...

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from bygge.contracts import Input, ToolResult
+from bygge.contracts import Input, PluginResult
 from bygge.plugins.pytest_run_mixin import PytestRunMixin
 from bygge.plugins.util import fetch_pytest_test_dirs, get_requirements
 from bygge.util import load_toml
@@ -90,7 +90,7 @@ def test_pytest_run_mixin_success(mock_subprocess: MagicMock) -> None:
 
     result = mixin.run_pytest(cmd=["pytest"], cwd=Path("/tmp"))
 
-    assert result is ToolResult.TEST_PASSED
+    assert result is PluginResult.PASSED
 
 
 def test_pytest_run_mixin_test_failure(mock_subprocess: MagicMock) -> None:
@@ -100,7 +100,7 @@ def test_pytest_run_mixin_test_failure(mock_subprocess: MagicMock) -> None:
 
     result = mixin.run_pytest(cmd=["pytest"], cwd=Path("/tmp"))
 
-    assert result is ToolResult.TEST_FAILED
+    assert result is PluginResult.FAILED
 
 
 def test_pytest_run_mixin_no_test_dirs(mock_subprocess: MagicMock) -> None:
@@ -110,7 +110,7 @@ def test_pytest_run_mixin_no_test_dirs(mock_subprocess: MagicMock) -> None:
 
     result = mixin.run_pytest(cmd=["pytest"], cwd=Path("/tmp"))
 
-    assert result is ToolResult.TOOL_ERROR
+    assert result is PluginResult.PLUGIN_ERROR
 
 
 def test_pytest_run_mixin_no_tests_found(mock_subprocess: MagicMock) -> None:
@@ -120,7 +120,7 @@ def test_pytest_run_mixin_no_tests_found(mock_subprocess: MagicMock) -> None:
 
     result = mixin.run_pytest(cmd=["pytest"], cwd=Path("/tmp"))
 
-    assert result is ToolResult.TOOL_ERROR
+    assert result is PluginResult.PLUGIN_ERROR
 
 
 def test_pytest_run_mixin_unexpected_returncode(mock_subprocess: MagicMock) -> None:

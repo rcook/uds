@@ -5,14 +5,15 @@ from typing import Protocol
 from bygge.workspace import Workspace
 
 from .payload import Payload
-from .tool import Tool
-from .tool_result import ToolResult
+from .plugin import Plugin
+from .plugin_result import PluginResult
 
 
-class UnitTestTool(Tool, Protocol):
-    def run_test(
+class CoveragePlugin(Plugin, Protocol):
+    def run_coverage(
         self,
         workspace: Workspace,
         payload: Payload,
         args: tuple[str, ...],
-    ) -> ToolResult: ...
+        coverage_baseline: int | None,
+    ) -> PluginResult: ...

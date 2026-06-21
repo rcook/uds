@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bygge.contracts import Input, Payload, ToolResult
+from bygge.contracts import Input, Payload, PluginResult
 from bygge.run import run_subprocess
 from bygge.util import TomlValue
 from bygge.workspace import Workspace
@@ -19,7 +19,7 @@ class Basedpyright(TestDirsMixin):
         workspace: Workspace,
         payload: Payload,
         args: tuple[str, ...],
-    ) -> ToolResult:
+    ) -> PluginResult:
         cmd = [
             str(workspace.make_bin_path("basedpyright")),
             *[str(p) for p in payload.source_dirs],
@@ -34,13 +34,13 @@ class Basedpyright(TestDirsMixin):
         match proc.returncode:
             case 0:
                 # basedpyright completed successfully: no type errors
-                return ToolResult.TEST_PASSED
+                return PluginResult.PASSED
             case 1:
                 # basedpyright completed successfully: some type errors were detected
-                return ToolResult.TEST_FAILED
+                return PluginResult.FAILED
             case 3:  # pragma: nocover
                 # basedpyright reported bad configuration etc.
-                return ToolResult.TOOL_ERROR
+                return PluginResult.PLUGIN_ERROR
             case _:  # pragma: nocover
                 proc.check_returncode()
                 raise AssertionError()

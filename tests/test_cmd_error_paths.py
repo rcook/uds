@@ -62,16 +62,16 @@ def test_coverage_command_no_tool_found(tmp_workspace: Path, tmp_package: Path) 
 
     # Mock PLUGINS to have no coverage tools
     empty_plugins = Plugins(
-        source_dir_tools=[],
-        test_dir_tools=[],
-        test_tools=[],
-        coverage_tools=[],
-        type_check_tools=[],
+        source_dir_plugins=[],
+        test_dir_plugins=[],
+        test_plugins=[],
+        coverage_plugins=[],
+        type_check_plugins=[],
     )
 
     with (
         patch("bygge.cmd.coverage_cmd.PLUGINS", empty_plugins),
-        raises(ByggeError, match="No coverage tool found"),
+        raises(ByggeError, match="No coverage plugin found"),
     ):
         coverage(workspace=workspace, args=())
 
@@ -86,16 +86,16 @@ def test_test_command_no_tool_found(tmp_workspace: Path, tmp_package: Path) -> N
 
     # Mock PLUGINS to have no test tools
     empty_plugins = Plugins(
-        source_dir_tools=[],
-        test_dir_tools=[],
-        test_tools=[],
-        coverage_tools=[],
-        type_check_tools=[],
+        source_dir_plugins=[],
+        test_dir_plugins=[],
+        test_plugins=[],
+        coverage_plugins=[],
+        type_check_plugins=[],
     )
 
     with (
         patch("bygge.cmd.test_cmd.PLUGINS", empty_plugins),
-        raises(ByggeError, match="No test tool found"),
+        raises(ByggeError, match="No test plugin found"),
     ):
         run_test(workspace=workspace, args=())
 
@@ -110,15 +110,15 @@ def test_type_check_command_no_tool_found(tmp_workspace: Path, tmp_package: Path
 
     # Mock PLUGINS to have no type check tools
     empty_plugins = Plugins(
-        source_dir_tools=[],
-        test_dir_tools=[],
-        test_tools=[],
-        coverage_tools=[],
-        type_check_tools=[],
+        source_dir_plugins=[],
+        test_dir_plugins=[],
+        test_plugins=[],
+        coverage_plugins=[],
+        type_check_plugins=[],
     )
 
     with (
         patch("bygge.cmd.type_check_cmd.PLUGINS", empty_plugins),
-        raises(ByggeError, match="No type check tool found"),
+        raises(ByggeError, match="No type check plugin found"),
     ):
         type_check(workspace=workspace, args=())

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from bygge.contracts import Input, Payload, ToolResult
+from bygge.contracts import Input, Payload, PluginResult
 from bygge.plugins.basedpyright import Basedpyright
 from bygge.plugins.hatchling import Hatchling
 from bygge.plugins.pytest import Pytest
@@ -131,7 +131,7 @@ def test_basedpyright_run_type_check_success(
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     result = plugin.run_type_check(workspace=workspace, payload=payload, args=())
-    assert result is ToolResult.TEST_PASSED
+    assert result is PluginResult.PASSED
 
 
 def test_basedpyright_run_type_check_failure(
@@ -148,7 +148,7 @@ def test_basedpyright_run_type_check_failure(
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
     result = plugin.run_type_check(workspace=workspace, payload=payload, args=())
-    assert result is ToolResult.TEST_FAILED
+    assert result is PluginResult.FAILED
 
 
 def test_pytest_is_installed(tmp_package: Path) -> None:
@@ -176,7 +176,7 @@ def test_pytest_run_test_success(
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     result = plugin.run_test(workspace=workspace, payload=payload, args=())
-    assert result is ToolResult.TEST_PASSED
+    assert result is PluginResult.PASSED
 
 
 def test_pytest_run_test_failure(
@@ -193,7 +193,7 @@ def test_pytest_run_test_failure(
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
     result = plugin.run_test(workspace=workspace, payload=payload, args=())
-    assert result is ToolResult.TEST_FAILED
+    assert result is PluginResult.FAILED
 
 
 def test_pytest_cov_is_installed(tmp_package: Path) -> None:
@@ -223,7 +223,7 @@ def test_pytest_cov_run_coverage_success(
     result = plugin.run_coverage(
         workspace=workspace, payload=payload, args=(), coverage_baseline=100
     )
-    assert result is ToolResult.TEST_PASSED
+    assert result is PluginResult.PASSED
     call_args = mock_subprocess.call_args_list[0]
     assert "--cov-fail-under=100" in call_args[0][0]
 

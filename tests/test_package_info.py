@@ -74,11 +74,11 @@ def test_package_meta_load_invalid_toml(tmp_workspace: Path) -> None:
 def test_package_info_make(tmp_package: Path) -> None:
     """Test PackageInfo.make creates package info."""
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     pyproject_path = tmp_package / "pyproject.toml"
     input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
@@ -92,11 +92,11 @@ def test_package_info_make(tmp_package: Path) -> None:
 def test_package_info_make_invalid_toml(tmp_workspace: Path) -> None:
     """Test PackageInfo.make handles invalid TOML."""
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     pyproject_path = tmp_workspace / "invalid.toml"
     _ = pyproject_path.write_text("invalid toml [[[")
@@ -110,11 +110,11 @@ def test_package_info_make_invalid_toml(tmp_workspace: Path) -> None:
 def test_package_info_make_missing_name(tmp_workspace: Path) -> None:
     """Test PackageInfo.make returns None when name is missing."""
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     pyproject_path = tmp_workspace / "invalid.toml"
     _ = pyproject_path.write_text("[project]\nversion = '0.1.0'\n")
@@ -128,11 +128,11 @@ def test_package_info_make_missing_name(tmp_workspace: Path) -> None:
 def test_package_info_get_name(tmp_package: Path) -> None:
     """Test PackageInfo._get_name extracts package name."""
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     pyproject_path = tmp_package / "pyproject.toml"
     blob = load_toml(pyproject_path)
@@ -150,11 +150,11 @@ def test_package_info_get_name(tmp_package: Path) -> None:
 def test_package_info_get_source_dirs(tmp_package: Path) -> None:
     """Test PackageInfo._get_source_dirs finds source directories."""
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     pyproject_path = tmp_package / "pyproject.toml"
     blob = load_toml(pyproject_path)
@@ -173,11 +173,11 @@ def test_package_info_get_source_dirs(tmp_package: Path) -> None:
 def test_package_info_get_test_dirs(tmp_package: Path) -> None:
     """Test PackageInfo._get_test_dirs finds test directories."""
     plugins = Plugins(
-        source_dir_tools=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_tools=[PytestDiscovery()],
-        test_tools=[Pytest()],
-        coverage_tools=[PytestCov()],
-        type_check_tools=[Basedpyright()],
+        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
+        test_dir_plugins=[PytestDiscovery()],
+        test_plugins=[Pytest()],
+        coverage_plugins=[PytestCov()],
+        type_check_plugins=[Basedpyright()],
     )
     pyproject_path = tmp_package / "pyproject.toml"
     blob = load_toml(pyproject_path)

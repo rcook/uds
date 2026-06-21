@@ -5,11 +5,11 @@ from typing import Protocol
 from bygge.workspace import Workspace
 
 from .payload import Payload
-from .tool import Tool
-from .tool_result import ToolResult
+from .plugin import Plugin
+from .plugin_result import PluginResult
 
 
-class TypeCheckTool(Tool, Protocol):
+class TypeCheckPlugin(Plugin, Protocol):
     def run_type_check(
         self, workspace: Workspace, payload: Payload, args: tuple[str, ...]
-    ) -> ToolResult: ...
+    ) -> PluginResult: ...

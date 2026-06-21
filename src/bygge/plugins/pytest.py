@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bygge.contracts import Input, Payload, ToolResult
+from bygge.contracts import Input, Payload, PluginResult
 from bygge.util import TomlValue
 from bygge.workspace import Workspace
 
@@ -17,7 +17,7 @@ class Pytest(PytestRunMixin):
         workspace: Workspace,
         payload: Payload,
         args: tuple[str, ...],
-    ) -> ToolResult:
+    ) -> PluginResult:
         cmd = [
             str(workspace.make_bin_path("pytest")),
             *[str(d) for d in sorted(payload.test_dirs)],

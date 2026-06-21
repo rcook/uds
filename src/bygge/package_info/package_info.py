@@ -5,12 +5,12 @@ from logging import debug
 from pathlib import Path
 from typing import Self
 
-from bygge.contracts import CoverageTool, Input, Payload, TypeCheckTool, UnitTestTool
+from bygge.contracts import CoveragePlugin, Input, Payload, TestPlugin, TypeCheckPlugin
 from bygge.plugins import Plugins
 from bygge.util import TomlValue, load_toml, query_toml, try_dict, try_str
 
 from .context import Context
-from .tool_info import ToolInfo
+from .plugin_info import PluginInfo
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,7 +24,7 @@ class SkinnyContext:
 
     def get_source_dirs(self) -> list[Path] | None:
         source_dirs = None
-        for f in self.plugins.source_dir_tools:
+        for f in self.plugins.source_dir_plugins:
             temp = f.fetch_source_dirs(input=self.input, blob=self.blob)
             count = 0 if temp is None else len(temp)
             debug(f"Plugin {type(f).__name__}: found {count} source directories")
@@ -34,7 +34,7 @@ class SkinnyContext:
 
     def get_test_dirs(self) -> list[Path] | None:
         test_dirs = None
-        for f in self.plugins.test_dir_tools:
+        for f in self.plugins.test_dir_plugins:
             temp = f.fetch_test_dirs(input=self.input, blob=self.blob)
             count = 0 if temp is None else len(temp)
             debug(f"Plugin {type(f).__name__}: found {count} test directories")
@@ -46,9 +46,9 @@ class SkinnyContext:
 @dataclass(frozen=True, slots=True)
 class PackageInfo:
     name: str
-    test: ToolInfo[UnitTestTool] | None
-    coverage: ToolInfo[CoverageTool] | None
-    type_check: ToolInfo[TypeCheckTool] | None
+    test: PluginInfo[TestPlugin] | None
+    coverage: PluginInfo[CoveragePlugin] | None
+    type_check: PluginInfo[TypeCheckPlugin] | None
 
     @classmethod
     def make(cls: type[Self], plugins: Plugins, input: Input) -> Self | None:
@@ -79,7 +79,9 @@ class PackageInfo:
 
         return cls(
             name=name,
-            test=ToolInfo[UnitTestTool].find(ctx=ctx, tools=ctx.plugins.test_tools),
-            coverage=ToolInfo[CoverageTool].find(ctx=ctx, tools=ctx.plugins.coverage_tools),
-            type_check=ToolInfo[TypeCheckTool].find(ctx=ctx, tools=ctx.plugins.type_check_tools),
+            test=PluginInfo[TestPlugin].find(ctx=ctx, plugins=ctx.plugins.test_plugins),
+            coverage=PluginInfo[CoveragePlugin].find(ctx=ctx, plugins=ctx.plugins.coverage_plugins),
+            type_check=PluginInfo[TypeCheckPlugin].find(
+                ctx=ctx, plugins=ctx.plugins.type_check_plugins
+            ),
         )

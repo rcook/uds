@@ -1,6 +1,6 @@
 from __future__ import annotations
 
 from .package_info import PackageInfo
-from .tool_info import ToolInfo
+from .plugin_info import PluginInfo
 
-__all__ = ["PackageInfo", "ToolInfo"]
+__all__ = ["PackageInfo", "PluginInfo"]
