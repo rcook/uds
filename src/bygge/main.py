@@ -287,9 +287,10 @@ def coverage_cmd(workspace: Workspace, args: tuple[str, ...]) -> None:  # pragma
 
 @main.command("fmt", help="Format code and sort imports")
 @pass_obj
-@option("--fix/--check", type=bool, is_flag=True, default=False)
-def fmt_cmd(workspace: Workspace, fix: bool) -> None:  # pragma: no cover
-    fmt(workspace=workspace, fix=fix)
+@ARGS_ARG
+@option("--fix/--check", type=bool, is_flag=True, default=True)
+def fmt_cmd(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:  # pragma: no cover
+    fmt(workspace=workspace, fix=fix, args=args)
 
 
 @main.command("lint", help="Run linting and optional fix issues", context_settings=UNKNOWN_ARGS_CTX)

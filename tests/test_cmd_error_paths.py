@@ -61,13 +61,7 @@ def test_coverage_command_no_tool_found(tmp_workspace: Path, tmp_package: Path) 
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
 
     # Mock PLUGINS to have no coverage tools
-    empty_plugins = Plugins(
-        source_dir_plugins=[],
-        test_dir_plugins=[],
-        test_plugins=[],
-        coverage_plugins=[],
-        type_check_plugins=[],
-    )
+    empty_plugins = Plugins()
 
     with (
         patch("bygge.cmd.coverage_cmd.PLUGINS", empty_plugins),
@@ -85,13 +79,7 @@ def test_test_command_no_tool_found(tmp_workspace: Path, tmp_package: Path) -> N
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
 
     # Mock PLUGINS to have no test tools
-    empty_plugins = Plugins(
-        source_dir_plugins=[],
-        test_dir_plugins=[],
-        test_plugins=[],
-        coverage_plugins=[],
-        type_check_plugins=[],
-    )
+    empty_plugins = Plugins()
 
     with (
         patch("bygge.cmd.test_cmd.PLUGINS", empty_plugins),
@@ -109,13 +97,7 @@ def test_type_check_command_no_tool_found(tmp_workspace: Path, tmp_package: Path
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
 
     # Mock PLUGINS to have no type check tools
-    empty_plugins = Plugins(
-        source_dir_plugins=[],
-        test_dir_plugins=[],
-        test_plugins=[],
-        coverage_plugins=[],
-        type_check_plugins=[],
-    )
+    empty_plugins = Plugins()
 
     with (
         patch("bygge.cmd.type_check_cmd.PLUGINS", empty_plugins),

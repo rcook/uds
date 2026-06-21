@@ -5,7 +5,15 @@ from logging import debug
 from pathlib import Path
 from typing import Self
 
-from bygge.contracts import CoveragePlugin, Input, Payload, TestPlugin, TypeCheckPlugin
+from bygge.contracts import (
+    CoveragePlugin,
+    FormatPlugin,
+    Input,
+    LintPlugin,
+    Payload,
+    TestPlugin,
+    TypeCheckPlugin,
+)
 from bygge.plugins import Plugins
 from bygge.util import TomlValue, load_toml, query_toml, try_dict, try_str
 
@@ -49,6 +57,8 @@ class PackageInfo:
     test: PluginInfo[TestPlugin] | None
     coverage: PluginInfo[CoveragePlugin] | None
     type_check: PluginInfo[TypeCheckPlugin] | None
+    format: PluginInfo[FormatPlugin] | None
+    lint: PluginInfo[LintPlugin] | None
 
     @classmethod
     def make(cls: type[Self], plugins: Plugins, input: Input) -> Self | None:
@@ -84,4 +94,6 @@ class PackageInfo:
             type_check=PluginInfo[TypeCheckPlugin].find(
                 ctx=ctx, plugins=ctx.plugins.type_check_plugins
             ),
+            format=PluginInfo[FormatPlugin].find(ctx=ctx, plugins=ctx.plugins.format_plugins),
+            lint=PluginInfo[LintPlugin].find(ctx=ctx, plugins=ctx.plugins.lint_plugins),
         )

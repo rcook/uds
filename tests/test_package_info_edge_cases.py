@@ -12,6 +12,7 @@ from bygge.plugins import (
     Pytest,
     PytestCov,
     PytestDiscovery,
+    RuffFormatPlugin,
     Setuptools,
 )
 from bygge.util import load_toml
@@ -41,6 +42,7 @@ def test_package_info_get_test_dirs_none_found(tmp_workspace: Path) -> None:
         test_plugins=[Pytest()],
         coverage_plugins=[PytestCov()],
         type_check_plugins=[Basedpyright()],
+        format_plugins=[RuffFormatPlugin()],
     )
     blob = load_toml(pyproject_path)
     skinny_ctx = SkinnyContext(

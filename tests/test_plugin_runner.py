@@ -9,7 +9,7 @@ from bygge.cmd.plugin_runner import PluginRunner
 from bygge.cmd.run_result import RunResult
 from bygge.contracts import CoveragePlugin, Payload, PluginResult, TypeCheckPlugin
 from bygge.contracts import TestPlugin as _TestPlugin
-from bygge.plugins import Plugins
+from bygge.plugins import Plugins, RuffFormatPlugin
 from bygge.workspace import Workspace
 
 
@@ -32,6 +32,7 @@ def mock_plugins() -> Plugins:
         test_plugins=[Pytest()],
         coverage_plugins=[PytestCov()],
         type_check_plugins=[Basedpyright()],
+        format_plugins=[RuffFormatPlugin()],
     )
 
 
@@ -89,6 +90,7 @@ def test_run_test_no_plugins(
         test_plugins=[],
         coverage_plugins=[],
         type_check_plugins=[],
+        format_plugins=[],
     )
     runner = PluginRunner(workspace=mock_workspace, plugins=empty_plugins)
     result = runner.run_test(args=())
@@ -112,6 +114,7 @@ def test_run_coverage_no_plugins(
         test_plugins=[],
         coverage_plugins=[],
         type_check_plugins=[],
+        format_plugins=[],
     )
     runner = PluginRunner(workspace=mock_workspace, plugins=empty_plugins)
     result = runner.run_coverage(args=())
@@ -135,6 +138,7 @@ def test_run_type_check_no_plugins(
         test_plugins=[],
         coverage_plugins=[],
         type_check_plugins=[],
+        format_plugins=[],
     )
     runner = PluginRunner(workspace=mock_workspace, plugins=empty_plugins)
     result = runner.run_type_check(args=())

@@ -7,7 +7,9 @@ from pathlib import Path
 
 from bygge.contracts import (
     CoveragePlugin,
+    FormatPlugin,
     Input,
+    LintPlugin,
     Payload,
     PluginResult,
     TestPlugin,
@@ -35,12 +37,17 @@ class PluginRunner:
             def to_payload(self) -> Payload:
                 return Payload(source_dirs=self.source_dirs, test_dirs=self.test_dirs)
 
+        def build[P](plugins: dict[P, PayloadBuilder]) -> dict[P, Payload]:
+            return {t: b.to_payload() for t, b in plugins.items()}
+
         target_info = TargetInfo.build(workspace)
 
         infos: list[PackageInfo] = []
-        test_tools: dict[TestPlugin, PayloadBuilder] = {}
-        coverage_tools: dict[CoveragePlugin, PayloadBuilder] = {}
-        type_check_tools: dict[TypeCheckPlugin, PayloadBuilder] = {}
+        test_plugins: dict[TestPlugin, PayloadBuilder] = {}
+        coverage_plugins: dict[CoveragePlugin, PayloadBuilder] = {}
+        type_check_plugins: dict[TypeCheckPlugin, PayloadBuilder] = {}
+        format_plugins: dict[FormatPlugin, PayloadBuilder] = {}
+        lint_plugins: dict[LintPlugin, PayloadBuilder] = {}
         for meta in target_info.ordered_metas:
             input = Input(pyproject_path=meta.pyproject_path, optional_deps=workspace.optional_deps)
             info = PackageInfo.make(plugins=plugins, input=input)
@@ -49,30 +56,37 @@ class PluginRunner:
 
             infos.append(info)
             if info.test is not None:
-                acc = test_tools.setdefault(info.test.plugin, PayloadBuilder())
+                acc = test_plugins.setdefault(info.test.plugin, PayloadBuilder())
                 acc.extend(info.test.payload)
             if info.coverage is not None:
-                acc = coverage_tools.setdefault(info.coverage.plugin, PayloadBuilder())
+                acc = coverage_plugins.setdefault(info.coverage.plugin, PayloadBuilder())
                 acc.extend(info.coverage.payload)
             if info.type_check is not None:
-                acc = type_check_tools.setdefault(info.type_check.plugin, PayloadBuilder())
+                acc = type_check_plugins.setdefault(info.type_check.plugin, PayloadBuilder())
                 acc.extend(info.type_check.payload)
+            if info.format is not None:
+                acc = format_plugins.setdefault(info.format.plugin, PayloadBuilder())
+                acc.extend(info.format.payload)
+            if info.lint is not None:
+                acc = lint_plugins.setdefault(info.lint.plugin, PayloadBuilder())
+                acc.extend(info.lint.payload)
 
         self.workspace: Workspace = workspace
-        self._test_tools: dict[TestPlugin, Payload] = {
-            t: b.to_payload() for t, b in test_tools.items()
-        }
-        self._coverage_tools: dict[CoveragePlugin, Payload] = {
-            t: b.to_payload() for t, b in coverage_tools.items()
-        }
-        self._type_check_tools: dict[TypeCheckPlugin, Payload] = {
-            t: b.to_payload() for t, b in type_check_tools.items()
-        }
+        self._infos: list[PackageInfo] = infos
+        self._test_plugins: dict[TestPlugin, Payload] = build(test_plugins)
+        self._coverage_plugins: dict[CoveragePlugin, Payload] = build(coverage_plugins)
+        self._type_check_plugins: dict[TypeCheckPlugin, Payload] = build(type_check_plugins)
+        self._format_plugins: dict[FormatPlugin, Payload] = build(format_plugins)
+        self._lint_plugins: dict[LintPlugin, Payload] = build(lint_plugins)
+
+    @property
+    def infos(self) -> list[PackageInfo]:
+        return self._infos
 
     def run_test(self, args: tuple[str, ...]) -> RunResult:
         return self.__class__.run_plugins(
-            plugins=self._test_tools,
-            f=lambda tool, payload: tool.run_test(
+            plugins=self._test_plugins,
+            f=lambda plugin, payload: plugin.run_test(
                 workspace=self.workspace, payload=payload, args=args
             ),
             label="test",
@@ -80,8 +94,8 @@ class PluginRunner:
 
     def run_coverage(self, args: tuple[str, ...]) -> RunResult:
         return self.__class__.run_plugins(
-            plugins=self._coverage_tools,
-            f=lambda tool, payload: tool.run_coverage(
+            plugins=self._coverage_plugins,
+            f=lambda plugin, payload: plugin.run_coverage(
                 workspace=self.workspace,
                 payload=payload,
                 args=args,
@@ -92,11 +106,29 @@ class PluginRunner:
 
     def run_type_check(self, args: tuple[str, ...]) -> RunResult:
         return self.__class__.run_plugins(
-            plugins=self._type_check_tools,
-            f=lambda tool, payload: tool.run_type_check(
+            plugins=self._type_check_plugins,
+            f=lambda plugin, payload: plugin.run_type_check(
                 workspace=self.workspace, payload=payload, args=args
             ),
             label="type check",
+        )
+
+    def run_format(self, fix: bool, args: tuple[str, ...]) -> RunResult:
+        return self.__class__.run_plugins(
+            plugins=self._format_plugins,
+            f=lambda plugin, payload: plugin.run_format(
+                workspace=self.workspace, payload=payload, fix=fix, args=args
+            ),
+            label="format",
+        )
+
+    def run_lint(self, fix: bool, args: tuple[str, ...]) -> RunResult:
+        return self.__class__.run_plugins(
+            plugins=self._lint_plugins,
+            f=lambda plugin, payload: plugin.run_lint(
+                workspace=self.workspace, payload=payload, fix=fix, args=args
+            ),
+            label="format",
         )
 
     @staticmethod
@@ -107,8 +139,8 @@ class PluginRunner:
         failure_count = 0
         error_count = 0
 
-        for tool, payload in sorted(plugins.items(), key=lambda p: type(p[0]).__name__):
-            match f(tool, payload):
+        for plugin, payload in sorted(plugins.items(), key=lambda p: type(p[0]).__name__):
+            match f(plugin, payload):
                 case PluginResult.PASSED:
                     success_count += 1
                 case PluginResult.FAILED:

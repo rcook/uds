@@ -1,10 +1,5 @@
 # To Do
 
-## TODO000: Generalization
-
-- `fmt_cmd.py`: Hardcodes ruff as the linting tool
-- `lint_cmd.py`: Hardcodes ruff as the linting tool
-
 ## TODO001: Recode
 
 - Introduce `--fix/--check`
@@ -25,6 +20,11 @@
 ## TODO008: Command to create `pre-commit` hooks file
 
 ## Done
+
+## ~~TODO000: Generalization~~ (fixed)
+
+- `fmt_cmd.py`: Hardcodes ruff as the linting tool
+- `lint_cmd.py`: Hardcodes ruff as the linting tool
 
 ## ~~TODO005: `init` should indicate which Python it's using~~ (no repro)
 

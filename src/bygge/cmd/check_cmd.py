@@ -12,7 +12,7 @@ from .type_check_cmd import type_check
 
 def check(workspace: Workspace) -> None:
     click.echo("Checking formatting...")
-    fmt(workspace=workspace, fix=False)
+    fmt(workspace=workspace, fix=False, args=())
     click.echo()
     click.echo("Linting...")
     lint(workspace=workspace, fix=False, args=())

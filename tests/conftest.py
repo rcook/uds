@@ -47,7 +47,7 @@ def tmp_workspace(tmp_path: Path) -> Path:
     venv_bin.mkdir(parents=True)
 
     # Create dummy executables for common tools
-    for tool in ["ruff", "pytest", "basedpyright", "python"]:
+    for tool in ["basedpyright", "pytest", "python", "ruff"]:
         tool_file_name = f"{tool}{ext}"
         tool_path = venv_bin / tool_file_name
         tool_path.touch()

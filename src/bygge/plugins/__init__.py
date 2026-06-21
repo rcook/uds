@@ -8,6 +8,8 @@ from .plugins import Plugins
 from .pytest import Pytest
 from .pytest_cov import PytestCov
 from .pytest_discovery import PytestDiscovery
+from .ruff_check_plugin import RuffCheckPlugin
+from .ruff_format_plugin import RuffFormatPlugin
 from .setuptools import Setuptools
 
 __all__ = [
@@ -19,5 +21,7 @@ __all__ = [
     "Pytest",
     "PytestCov",
     "PytestDiscovery",
+    "RuffCheckPlugin",
+    "RuffFormatPlugin",
     "Setuptools",
 ]

@@ -5,6 +5,8 @@ from pathlib import Path
 
 import click
 
+from bygge.cmd.constants import PLUGINS
+from bygge.cmd.plugin_runner import PluginRunner
 from bygge.util import ExecutableInfo
 from bygge.workspace import Workspace
 
@@ -58,3 +60,16 @@ def info(workspace: Workspace) -> None:
         click.echo("\u2713 bygge binary is from project's virtual environment")
     except ValueError:
         click.echo("\u2717 bygge binary is NOT from project's virtual environment")
+
+    click.echo("\nProject information:")
+    runner = PluginRunner(workspace=workspace, plugins=PLUGINS)
+    for info in runner.infos:  # pragma: nocover
+        click.echo(f"  {info.name}")
+        if info.test is not None:
+            click.echo(f"    Test plugin: {type(info.test.plugin).__name__}")
+        if info.coverage is not None:
+            click.echo(f"    Coverage plugin: {type(info.coverage.plugin).__name__}")
+        if info.type_check is not None:
+            click.echo(f"    Type check plugin: {type(info.type_check.plugin).__name__}")
+        if info.format is not None:
+            click.echo(f"    Format plugin: {type(info.format.plugin).__name__}")

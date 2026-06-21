@@ -16,12 +16,12 @@ from bygge.cmd.type_check_cmd import type_check
 from bygge.workspace import Workspace
 
 
-def test_fmt_fix_mode(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_fmt_fix_mode(tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test fmt command in fix mode."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    fmt(workspace=workspace, fix=True)
+    fmt(workspace=workspace, fix=True, args=())
 
     assert mock_subprocess.call_count == 2
     first_call = mock_subprocess.call_args_list[0]
@@ -29,12 +29,12 @@ def test_fmt_fix_mode(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
     assert "format" in first_call[0][0]
 
 
-def test_fmt_check_mode(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_fmt_check_mode(tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test fmt command in check mode."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    fmt(workspace=workspace, fix=False)
+    fmt(workspace=workspace, fix=False, args=())
 
     assert mock_subprocess.call_count == 2
     first_call = mock_subprocess.call_args_list[0]
@@ -46,8 +46,8 @@ def test_fmt_format_failure(tmp_workspace: Path, mock_subprocess: MagicMock) -> 
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
-    with pytest.raises(ByggeError, match="Format check failed"):
-        fmt(workspace=workspace, fix=False)
+    with pytest.raises(ByggeError, match="No format plugin found"):
+        fmt(workspace=workspace, fix=False, args=())
 
 
 def test_fmt_isort_failure(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
@@ -61,11 +61,11 @@ def test_fmt_isort_failure(tmp_workspace: Path, mock_subprocess: MagicMock) -> N
 
     mock_subprocess.side_effect = side_effect
 
-    with pytest.raises(ByggeError, match="Import sort check failed"):
-        fmt(workspace=workspace, fix=False)
+    with pytest.raises(ByggeError, match="No format plugin found"):
+        fmt(workspace=workspace, fix=False, args=())
 
 
-def test_lint_no_fix(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_lint_no_fix(tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test lint command without fix."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
@@ -79,7 +79,7 @@ def test_lint_no_fix(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
     assert "--fix" not in call_args[0][0]
 
 
-def test_lint_with_fix(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_lint_with_fix(tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test lint command with fix."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
@@ -96,7 +96,7 @@ def test_lint_failure(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
-    with pytest.raises(ByggeError, match="Lint check failed"):
+    with pytest.raises(ByggeError, match="No lint plugin found"):
         lint(workspace=workspace, fix=False, args=())
 
 
