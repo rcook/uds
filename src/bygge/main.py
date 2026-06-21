@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, override
 
 import click
-from click import Context, Group, argument, option, pass_context, pass_obj, version_option
+from click import Context, Group, option, pass_context, pass_obj, version_option
 
 from bygge import VERSION, ByggeError
 from bygge.cmd import (
@@ -35,7 +35,7 @@ from bygge.util import (
     ColourFormatter,
     ExecutableInfo,
 )
-from bygge.util.cli import UNKNOWN_ARGS_CTX, NamedChoice
+from bygge.util.cli import FIX_CHECK_OPT, UNKNOWN_ARGS_CTX, NamedChoice
 from bygge.util.env import env_truthy
 from bygge.workspace import Workspace
 
@@ -287,18 +287,27 @@ def coverage_cmd(workspace: Workspace, args: tuple[str, ...]) -> None:  # pragma
 
 @main.command("fmt", help="Format code and sort imports")
 @pass_obj
+@FIX_CHECK_OPT
 @ARGS_ARG
-@option("--fix/--check", type=bool, is_flag=True, default=True)
 def fmt_cmd(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:  # pragma: no cover
     fmt(workspace=workspace, fix=fix, args=args)
 
 
 @main.command("lint", help="Run linting and optional fix issues", context_settings=UNKNOWN_ARGS_CTX)
 @pass_obj
+@FIX_CHECK_OPT
 @ARGS_ARG
-@option("--fix/--check", type=bool, is_flag=True, default=False)
 def lint_cmd(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:  # pragma: no cover
     lint(workspace=workspace, fix=fix, args=args)
+
+
+@main.command(
+    "recode", help="Convert non-ASCII characters in Python source files to Unicode escape sequences"
+)
+@pass_obj
+@FIX_CHECK_OPT
+def recode_cmd(workspace: Workspace, fix: bool) -> None:  # pragma: no cover
+    recode(workspace=workspace, fix=fix)
 
 
 @main.command("check", help="Run all pre-commit checks")
@@ -333,17 +342,3 @@ def unhook_cmd(workspace: Workspace) -> None:  # pragma: no cover
 @ARGS_ARG
 def commit_unchecked_cmd(workspace: Workspace, args: tuple[str, ...]) -> None:  # pragma: no cover
     commit_unchecked(workspace=workspace, args=args)
-
-
-@main.command(
-    "recode", help="Convert non-ASCII characters in Python source files to Unicode escape sequences"
-)
-@argument(
-    "path",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=True, writable=True, resolve_path=True, path_type=Path
-    ),
-    required=True,
-)
-def recode_cmd(path: Path) -> None:  # pragma: no cover
-    recode(path=path)

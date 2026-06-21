@@ -4,18 +4,20 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from bygge.cmd.recode_cmd import recode
+from bygge.cmd import recode
+from bygge.workspace import Workspace
 
 _RESOURCE_DIR: Path = Path(__file__).parent / "resources"
 
 
-# @pytest.mark.parametrize()
-def test_recode_basics(tmp_path: Path) -> None:
+def test_recode_basics(tmp_workspace: Path) -> None:
     @dataclass(frozen=True, slots=True)
     class FileInfo:
         input_bytes: bytes
         output_bytes: bytes
         test_path: Path
+
+    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
 
     files: list[FileInfo] = []
     for i in range(3):
@@ -24,7 +26,7 @@ def test_recode_basics(tmp_path: Path) -> None:
         output_file_name = f"example{i}-output.txt"
         output_path = _RESOURCE_DIR / output_file_name
 
-        test_path = tmp_path / input_file_name
+        test_path = tmp_workspace / f"{input_file_name}.py"
         _ = shutil.copyfile(input_path, test_path)
         files.append(
             FileInfo(
@@ -38,15 +40,7 @@ def test_recode_basics(tmp_path: Path) -> None:
     file1 = files[1]
     file2 = files[2]
 
-    # Convert single file
-    recode(file0.test_path)
-
-    assert file0.test_path.read_bytes() == file0.output_bytes
-    assert file1.test_path.read_bytes() == file1.input_bytes
-    assert file2.test_path.read_bytes() == file2.input_bytes
-
-    # Convert multiple files
-    recode(tmp_path, suffix=".txt")
+    recode(workspace=workspace, fix=True)
 
     assert file0.test_path.read_bytes() == file0.output_bytes
     assert file1.test_path.read_bytes() == file1.output_bytes

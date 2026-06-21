@@ -1,12 +1,5 @@
 # To Do
 
-## TODO001: Recode
-
-- Introduce `--fix/--check`
-- What should the default be?
-- What should return codes be?
-- Add to `check`
-
 ## TODO002: ruff configuration
 
 - Some basic stuff (unused return values etc.) not being detected
@@ -25,6 +18,13 @@
 
 - `fmt_cmd.py`: Hardcodes ruff as the linting tool
 - `lint_cmd.py`: Hardcodes ruff as the linting tool
+
+## ~~TODO001: Recode~~ (fixed)
+
+- Introduce `--fix/--check`
+- What should the default be?
+- What should return codes be?
+- Add to `check`
 
 ## ~~TODO005: `init` should indicate which Python it's using~~ (no repro)
 

@@ -41,7 +41,7 @@ class _Capture:
     [
         (commit_unchecked_cmd, None),
         (coverage_cmd, None),
-        (lint_cmd, {"fix": False}),
+        (lint_cmd, {"fix": True}),
         (__test_cmd, None),
         (type_check_cmd, None),
     ],

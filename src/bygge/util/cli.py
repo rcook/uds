@@ -40,6 +40,15 @@ YES_OPT: ClickDecorator = option(
 ARGS_ARG: ClickDecorator = argument("args", nargs=-1, type=click.UNPROCESSED)
 
 
+FIX_CHECK_OPT: ClickDecorator = option(
+    "--fix/--check",
+    type=bool,
+    is_flag=True,
+    default=True,
+    help="Fix errors or check for errors only",
+)
+
+
 UNKNOWN_ARGS_CTX: dict[str, bool] = {"ignore_unknown_options": True, "allow_extra_args": True}
 
 
