@@ -73,3 +73,5 @@ def info(workspace: Workspace) -> None:
             click.echo(f"    Type check plugin: {type(info.type_check.plugin).__name__}")
         if info.format is not None:
             click.echo(f"    Format plugin: {type(info.format.plugin).__name__}")
+        if info.lint is not None:
+            click.echo(f"    Lint plugin: {type(info.lint.plugin).__name__}")
