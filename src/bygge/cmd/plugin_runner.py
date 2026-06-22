@@ -49,7 +49,11 @@ class PluginRunner:
         format_plugins: dict[FormatPlugin, PayloadBuilder] = {}
         lint_plugins: dict[LintPlugin, PayloadBuilder] = {}
         for meta in target_info.ordered_metas:
-            input = Input(pyproject_path=meta.pyproject_path, optional_deps=workspace.optional_deps)
+            input = Input(
+                pyproject_path=meta.pyproject_path,
+                optional_deps=workspace.optional_deps,
+                blob=meta.blob,
+            )
             info = PackageInfo.make(plugins=plugins, input=input)
             if info is None:
                 continue

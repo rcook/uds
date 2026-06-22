@@ -85,7 +85,9 @@ def test_package_info_make(tmp_package: Path) -> None:
         lint_plugins=[RuffCheckPlugin()],
     )
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
 
     info = PackageInfo.make(plugins=plugins, input=input)
 
@@ -94,23 +96,13 @@ def test_package_info_make(tmp_package: Path) -> None:
 
 
 def test_package_info_make_invalid_toml(tmp_workspace_dir: Path) -> None:
-    """Test PackageInfo.make handles invalid TOML."""
-    plugins = Plugins(
-        source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
-        test_dir_plugins=[PytestDiscovery()],
-        test_plugins=[Pytest()],
-        coverage_plugins=[PytestCov()],
-        type_check_plugins=[Basedpyright()],
-        format_plugins=[RuffFormatPlugin()],
-        lint_plugins=[RuffCheckPlugin()],
-    )
+    """Test that loading invalid TOML raises an exception."""
     pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("invalid toml [[[")
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
 
     # load_toml raises an exception on invalid TOML
     with raises(TOMLDecodeError):
-        _ = PackageInfo.make(plugins=plugins, input=input)
+        _ = load_toml(pyproject_path)
 
 
 def test_package_info_make_missing_name(tmp_workspace_dir: Path) -> None:
@@ -126,7 +118,7 @@ def test_package_info_make_missing_name(tmp_workspace_dir: Path) -> None:
     )
     pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("[project]\nversion = '0.1.0'\n")
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+    input = Input(pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path))
 
     info = PackageInfo.make(plugins=plugins, input=input)
 
@@ -148,7 +140,9 @@ def test_package_info_get_name(tmp_package: Path) -> None:
     blob = load_toml(pyproject_path)
     skinny_ctx = SkinnyContext(
         plugins=plugins,
-        input=Input(pyproject_path=pyproject_path, optional_deps=[]),
+        input=Input(
+            pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path)
+        ),
         blob=blob,
     )
 
@@ -172,7 +166,9 @@ def test_package_info_get_source_dirs(tmp_package: Path) -> None:
     blob = load_toml(pyproject_path)
     skinny_ctx = SkinnyContext(
         plugins=plugins,
-        input=Input(pyproject_path=pyproject_path, optional_deps=["dev"]),
+        input=Input(
+            pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+        ),
         blob=blob,
     )
 
@@ -197,7 +193,9 @@ def test_package_info_get_test_dirs(tmp_package: Path) -> None:
     blob = load_toml(pyproject_path)
     skinny_ctx = SkinnyContext(
         plugins=plugins,
-        input=Input(pyproject_path=pyproject_path, optional_deps=["dev"]),
+        input=Input(
+            pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+        ),
         blob=blob,
     )
 

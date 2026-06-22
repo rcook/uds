@@ -15,8 +15,8 @@ from bygge.util import load_toml
 def test_get_requirements_with_dependencies(tmp_package: Path) -> None:
     """Test get_requirements extracts dependencies."""
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
     blob = load_toml(pyproject_path)
+    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"], blob=blob)
 
     requirements = get_requirements(input=input, blob=blob)
 
@@ -28,7 +28,7 @@ def test_get_requirements_with_dependencies(tmp_package: Path) -> None:
 def test_get_requirements_no_optional_deps(tmp_package: Path) -> None:
     """Test get_requirements without optional dependencies."""
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+    input = Input(pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path))
     blob = load_toml(pyproject_path)
 
     requirements = get_requirements(input=input, blob=blob)
@@ -39,7 +39,9 @@ def test_get_requirements_no_optional_deps(tmp_package: Path) -> None:
 def test_fetch_pytest_test_dirs_success(tmp_package: Path) -> None:
     """Test fetch_pytest_test_dirs finds test directories."""
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     test_dirs = fetch_pytest_test_dirs(input=input, blob=blob)
@@ -52,7 +54,7 @@ def test_fetch_pytest_test_dirs_success(tmp_package: Path) -> None:
 def test_check_requirements_missing_required_dep(tmp_package: Path) -> None:
     """Test fetch_pytest_test_dirs returns None when required dep is missing."""
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+    input = Input(pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path))
     blob = load_toml(pyproject_path)
 
     assert not check_requirements(input=input, blob=blob, required_deps=["pytest"])
@@ -73,7 +75,9 @@ def test_fetch_pytest_test_dirs_no_testpaths(tmp_workspace_dir: Path) -> None:
         + 'dev = ["pytest"]\n'
     )
 
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     test_dirs = fetch_pytest_test_dirs(input=input, blob=blob)

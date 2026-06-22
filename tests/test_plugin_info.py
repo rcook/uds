@@ -30,7 +30,9 @@ def test_plugin_info_find_returns_first_installed(tmp_package: Path) -> None:
         format_plugins=[RuffFormatPlugin()],
     )
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
     payload = Payload(source_dirs=[tmp_package / "src"], test_dirs=[tmp_package / "tests"])
     ctx = Context(plugins=plugins, input=input, blob=blob, payload=payload)
@@ -57,7 +59,7 @@ def test_plugin_info_find_returns_none_when_no_plugin_installed(tmp_workspace_di
         type_check_plugins=[Basedpyright()],
         format_plugins=[RuffFormatPlugin()],
     )
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+    input = Input(pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path))
     blob = load_toml(pyproject_path)
     payload = Payload(source_dirs=[], test_dirs=[])
     ctx = Context(plugins=plugins, input=input, blob=blob, payload=payload)

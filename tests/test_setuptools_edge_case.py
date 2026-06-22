@@ -24,7 +24,7 @@ def test_setuptools_missing_where(tmp_workspace_dir: Path) -> None:
         + 'version = "0.1.0"\n'
     )
 
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+    input = Input(pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path))
     blob = load_toml(pyproject_path)
 
     source_dirs = plugin.fetch_source_dirs(input=input, blob=blob)

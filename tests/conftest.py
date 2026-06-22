@@ -7,6 +7,8 @@ from unittest.mock import MagicMock
 from pytest import MonkeyPatch, fixture
 
 from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
+from bygge.contracts import Input
+from bygge.util import load_toml
 from bygge.workspace import Workspace
 
 
@@ -139,3 +141,9 @@ def create_pyproject(
             lines.append(f"{k} = {v!r}")
 
     _ = path.write_text("\n".join(lines) + "\n")
+
+
+def create_input(pyproject_path: Path, optional_deps: list[str]) -> Input:
+    """Helper to create an Input with blob loaded from pyproject_path."""
+    blob = load_toml(pyproject_path)
+    return Input(pyproject_path=pyproject_path, optional_deps=optional_deps, blob=blob)

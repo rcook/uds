@@ -15,7 +15,7 @@ from bygge.contracts import (
     TypeCheckPlugin,
 )
 from bygge.plugins import Plugins
-from bygge.util import TomlValue, load_toml, query_toml, try_dict, try_str
+from bygge.util import TomlValue, query_toml, try_dict, try_str
 
 from .context import Context
 from .plugin_info import PluginInfo
@@ -62,7 +62,7 @@ class PackageInfo:
 
     @classmethod
     def make(cls: type[Self], plugins: Plugins, input: Input) -> Self | None:
-        obj = try_dict(load_toml(input.pyproject_path))
+        obj = try_dict(input.blob)
         if obj is None:  # pragma: no cover - TOML root is always a dict
             return None
 

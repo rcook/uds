@@ -47,7 +47,9 @@ def test_package_info_get_test_dirs_none_found(tmp_workspace_dir: Path) -> None:
     blob = load_toml(pyproject_path)
     skinny_ctx = SkinnyContext(
         plugins=plugins,
-        input=Input(pyproject_path=pyproject_path, optional_deps=[]),
+        input=Input(
+            pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path)
+        ),
         blob=blob,
     )
 

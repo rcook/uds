@@ -20,7 +20,9 @@ def test_hatchling_fetch_source_dirs(tmp_package: Path) -> None:
     """Test Hatchling plugin fetches source directories."""
     plugin = Hatchling()
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     source_dirs = plugin.fetch_source_dirs(input=input, blob=blob)
@@ -39,7 +41,9 @@ def test_hatchling_non_hatchling_backend(tmp_package: Path) -> None:
     content = content.replace("hatchling.build", "setuptools.build_meta")
     _ = pyproject_path.write_text(content)
 
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     source_dirs = plugin.fetch_source_dirs(input=input, blob=blob)
@@ -60,7 +64,9 @@ def test_hatchling_missing_packages(tmp_package: Path, caplog: LogCaptureFixture
     ]
     _ = pyproject_path.write_text("\n".join(filtered))
 
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     source_dirs = plugin.fetch_source_dirs(input=input, blob=blob)
@@ -86,7 +92,7 @@ def test_setuptools_fetch_source_dirs(tmp_workspace_dir: Path) -> None:
 
     (pkg_dir / "src").mkdir()
 
-    input = Input(pyproject_path=pyproject_path, optional_deps=[])
+    input = Input(pyproject_path=pyproject_path, optional_deps=[], blob=load_toml(pyproject_path))
     blob = load_toml(pyproject_path)
 
     source_dirs = plugin.fetch_source_dirs(input=input, blob=blob)
@@ -99,7 +105,9 @@ def test_setuptools_non_setuptools_backend(tmp_package: Path) -> None:
     """Test Setuptools plugin returns None for non-setuptools backend."""
     plugin = Setuptools()
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     source_dirs = plugin.fetch_source_dirs(input=input, blob=blob)
@@ -110,7 +118,9 @@ def test_basedpyright_is_installed(tmp_package: Path) -> None:
     """Test Basedpyright plugin detects installation."""
     plugin = Basedpyright()
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     is_installed = plugin.is_installed(input=input, blob=blob)
@@ -153,7 +163,9 @@ def test_pytest_is_installed(tmp_package: Path) -> None:
     """Test Pytest plugin detects installation."""
     plugin = Pytest()
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     is_installed = plugin.is_installed(input=input, blob=blob)
@@ -196,7 +208,9 @@ def test_pytest_cov_is_installed(tmp_package: Path) -> None:
     """Test PytestCov plugin detects installation."""
     plugin = PytestCov()
     pyproject_path = tmp_package / "pyproject.toml"
-    input = Input(pyproject_path=pyproject_path, optional_deps=["dev"])
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
     blob = load_toml(pyproject_path)
 
     is_installed = plugin.is_installed(input=input, blob=blob)
