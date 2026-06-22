@@ -5,19 +5,12 @@ from pathlib import Path
 from packaging.requirements import Requirement
 
 from bygge.contracts import Input
-from bygge.util import TomlValue, query_toml, try_dict, try_str_list
+from bygge.requirements import get_requirements as _get_requirements
+from bygge.util import TomlValue, query_toml, try_str_list
 
 
 def get_requirements(input: Input, blob: TomlValue) -> set[Requirement]:
-    deps = try_str_list(query_toml(blob, "project.dependencies"))
-    requirements = {Requirement(s) for s in deps or []}
-    node = try_dict(query_toml(blob, "project.optional-dependencies"))
-    if node is not None:
-        for optional_dep in input.optional_deps:
-            other_deps = try_str_list(node.get(optional_dep))
-            if other_deps is not None:
-                requirements.update(Requirement(s) for s in other_deps)
-    return requirements
+    return _get_requirements(blob=blob, optional_deps=input.optional_deps)
 
 
 def check_requirements(input: Input, blob: TomlValue, required_deps: list[str]) -> bool:
