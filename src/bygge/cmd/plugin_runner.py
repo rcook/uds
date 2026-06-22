@@ -128,7 +128,7 @@ class PluginRunner:
             f=lambda plugin, payload: plugin.run_lint(
                 workspace=self.workspace, payload=payload, fix=fix, args=args
             ),
-            label="format",
+            label="lint",
         )
 
     @staticmethod
