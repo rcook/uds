@@ -64,6 +64,24 @@ def test_walk_dir_basics(tmp_path: Path) -> None:
     assert paths == sorted([".venv/f/g"])
 
 
+def test_walk_dir_consecutive_ignored_dirs(tmp_path: Path) -> None:
+    """Test that consecutive ignored directories are both pruned correctly."""
+    (tmp_path / ".git" / "objects").mkdir(parents=True)
+    _ = (tmp_path / ".git" / "file1.txt").write_text("")
+    (tmp_path / ".venv" / "lib").mkdir(parents=True)
+    _ = (tmp_path / ".venv" / "file2.txt").write_text("")
+    (tmp_path / "src").mkdir(parents=True)
+    _ = (tmp_path / "src" / "file3.txt").write_text("")
+
+    paths: list[str] = []
+    for dir, file_names in walk_dir(start_dir=tmp_path):
+        for f in file_names:
+            paths.append((dir / f).relative_to(tmp_path).as_posix())
+
+    # Only src/file3.txt should be found; .git and .venv are ignored by default
+    assert sorted(paths) == ["src/file3.txt"]
+
+
 def test_hackily_canonicalize(tmp_path: Path) -> None:
     file_name = "foo.cmd" if IS_WINDOWS else "foo"
     bin_path = tmp_path / file_name

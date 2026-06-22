@@ -49,7 +49,7 @@ def walk_dir(
 ) -> Generator[tuple[Path, list[str]]]:
 
     for dir, dir_names, file_names in start_dir.walk():
-        for d in dir_names:
+        for d in list(dir_names):
             if is_ignored_dir_name(d, ignore_dir_globs):
                 dir_names.remove(d)
 
