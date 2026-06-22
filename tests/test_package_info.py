@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from tomllib import TOMLDecodeError
 
 from pytest import raises
 
+from bygge import ByggeError
 from bygge.contracts import Input
 from bygge.package_info import PackageInfo
 from bygge.package_info.package_info import SkinnyContext
@@ -64,12 +64,12 @@ def test_package_meta_load_missing_build_backend(tmp_workspace_dir: Path) -> Non
 
 
 def test_package_meta_load_invalid_toml(tmp_workspace_dir: Path) -> None:
-    """Test PackageMeta.load handles invalid TOML."""
+    """Test PackageMeta.load handles invalid TOML with user-friendly error."""
     pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("invalid toml content [[[")
 
-    # load_toml raises an exception on invalid TOML
-    with raises(TOMLDecodeError):
+    # load_toml should raise ByggeError with a user-friendly message
+    with raises(ByggeError, match=r"Error parsing.*invalid.toml"):
         _ = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
 
 
@@ -96,12 +96,12 @@ def test_package_info_make(tmp_package: Path) -> None:
 
 
 def test_package_info_make_invalid_toml(tmp_workspace_dir: Path) -> None:
-    """Test that loading invalid TOML raises an exception."""
+    """Test that loading invalid TOML raises a user-friendly ByggeError."""
     pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("invalid toml [[[")
 
-    # load_toml raises an exception on invalid TOML
-    with raises(TOMLDecodeError):
+    # load_toml should raise ByggeError with a user-friendly message
+    with raises(ByggeError, match=r"Error parsing.*invalid.toml"):
         _ = load_toml(pyproject_path)
 
 

@@ -5,6 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import cast
 
+from bygge import ByggeError
+
 type TomlPrimitive = str | int | float | bool | datetime
 type TomlList = list[TomlValue]
 type TomlDict = dict[str, TomlValue]
@@ -12,7 +14,10 @@ type TomlValue = TomlPrimitive | TomlList | TomlDict
 
 
 def load_toml(path: Path) -> TomlValue:
-    return cast(TomlValue, tomllib.loads(path.read_text()))
+    try:
+        return cast(TomlValue, tomllib.loads(path.read_text()))
+    except tomllib.TOMLDecodeError as e:
+        raise ByggeError(f"Error parsing {path}: {e}") from e
 
 
 def query_toml(obj: TomlValue, q: str) -> TomlValue | None:
