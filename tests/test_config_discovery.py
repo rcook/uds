@@ -60,10 +60,6 @@ def test_workspace_find_from_cwd(tmp_workspace: Workspace) -> None:
     assert tmp_workspace.coverage_baseline == 100
 
 
-def test_workspace_find_explicit_dir_missing_config(tmp_path: Path) -> None:
-    assert Workspace.probe(cwd=Path.cwd(), workspace_dir=tmp_path) is None
-
-
 def test_workspace_make_bin_path(tmp_workspace: Workspace) -> None:
     """Test Workspace.make_bin_path constructs correct path."""
     bin_path = tmp_workspace.make_bin_path("pytest", must_exist=False)

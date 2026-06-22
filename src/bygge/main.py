@@ -12,7 +12,6 @@ from click import (
     ClickException,
     Context,
     Group,
-    UsageError,
     argument,
     option,
     pass_context,
@@ -45,6 +44,7 @@ from bygge.util import (
     YES_OPT,
     ColourFormatter,
     ExecutableInfo,
+    find_dot_file,
 )
 from bygge.util.cli import FIX_CHECK_OPT, UNKNOWN_ARGS_CTX, NamedChoice
 from bygge.util.env import env_truthy
@@ -229,26 +229,33 @@ def main(
 
     _log_executable_info()
 
-    assert ctx.invoked_subcommand is not None
-    is_new = ctx.invoked_subcommand == "new"
+    command = ctx.invoked_subcommand
+    assert command is not None
 
-    verified_workspace_dir = Workspace.probe(cwd=cwd, workspace_dir=workspace_dir)
-    if verified_workspace_dir is None:
-        if is_new:
-            ctx.obj = cwd if workspace_dir is None else workspace_dir
-            return
+    if command == "new":
+        d = cwd if workspace_dir is None else workspace_dir
+        dot_path = d / DOT_FILE_NAME
+        if dot_path.exists():
+            raise ClickException(f"There is already a bygge configuration file at {dot_path}")
 
-        if workspace_dir is None:
+        ctx.obj = d
+        return
+
+    if workspace_dir is None:
+        dot_path = find_dot_file(cwd)
+        if dot_path is None:
             raise ClickException(f"Cannot find workspace at {cwd} or in any of its parents")
-        else:
-            raise ClickException(f"No workspace found in {workspace_dir}")
+        workspace_dir = dot_path.parent
+    else:
+        dot_path = workspace_dir / DOT_FILE_NAME
+        if not dot_path.is_file():
+            raise ClickException(
+                f"No workspace found in {workspace_dir} (missing {DOT_FILE_NAME} configuration file"
+            )
 
-    if is_new:
-        raise UsageError(f"There is already a bygge workspace present at {verified_workspace_dir}")
+    workspace = Workspace.open(workspace_dir=workspace_dir, cwd=cwd)
 
-    workspace = Workspace.open(workspace_dir=verified_workspace_dir, cwd=cwd)
-
-    if ctx.invoked_subcommand == "init":
+    if command == "init":
         # Warn if running "init" from project's own virtual environment
         if _is_running_from_project_venv(workspace):
             warning(

@@ -7,7 +7,6 @@ from typing import Self
 from bygge import ByggeError
 from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
 from bygge.dot_config import DotConfig
-from bygge.util import find_dot_file
 
 
 @dataclass(frozen=True)
@@ -18,19 +17,6 @@ class Workspace:
     venv_dir: Path
     optional_deps: list[str]
     coverage_baseline: int | None
-
-    @staticmethod
-    def probe(cwd: Path, workspace_dir: Path | None) -> Path | None:
-        if workspace_dir is None:
-            dot_path = find_dot_file(cwd)
-            if dot_path is None:
-                return None
-        else:
-            dot_path = workspace_dir / DOT_FILE_NAME
-            if not dot_path.is_file():
-                return None
-
-        return dot_path.parent
 
     @classmethod
     def open(cls: type[Self], workspace_dir: Path, cwd: Path | None = None) -> Self:
