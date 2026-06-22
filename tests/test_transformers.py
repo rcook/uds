@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import pytest
+from pytest import mark
 
 from bygge.util.transformers import detect_quote_style, to_ascii_escapes
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     "input, expected",
     [
         ("hello", "hello"),
@@ -17,7 +17,7 @@ def test_to_ascii_escapes(input: str, expected: str) -> None:
     assert to_ascii_escapes(input) == expected
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     "input, expected",
     [("x", '"'), ('   """x"""', '"""'), ("   '''x'''", "'''"), ('"x"', '"'), ("'x'", "'")],
 )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
+from pytest import raises
 
 from bygge import ByggeError
 from bygge.constants import DOT_FILE_NAME
@@ -48,56 +48,39 @@ def test_dot_config_invalid_coverage_baseline(tmp_workspace_dir: Path) -> None:
     dot_path = tmp_workspace_dir / DOT_FILE_NAME
     _ = dot_path.write_text('[workspace]\ncoverage_baseline = "invalid"\n')
 
-    with pytest.raises(ByggeError, match="Invalid code coverage baseline"):
+    with raises(ByggeError, match="Invalid code coverage baseline"):
         _ = DotConfig.load(workspace_dir=tmp_workspace_dir, dot_path=dot_path)
 
 
-def test_workspace_find_from_cwd(tmp_workspace_dir: Path) -> None:
+def test_workspace_find_from_cwd(tmp_workspace: Workspace) -> None:
     """Test Workspace.find discovers workspace from cwd."""
-    workspace = Workspace.open(tmp_workspace_dir)
-
-    assert workspace.cwd == tmp_workspace_dir
-    assert workspace.workspace_dir == tmp_workspace_dir
-    assert workspace.package_root_dir == tmp_workspace_dir / "packages"
-    assert workspace.optional_deps == ["dev"]
-    assert workspace.coverage_baseline == 100
-
-
-def test_workspace_find_explicit_dir(tmp_workspace_dir: Path) -> None:
-    """Test Workspace.find with explicit workspace_dir."""
-    workspace = Workspace.open(tmp_workspace_dir)
-
-    assert workspace.workspace_dir == tmp_workspace_dir
-    assert workspace.package_root_dir == tmp_workspace_dir / "packages"
+    assert tmp_workspace.cwd == tmp_workspace.workspace_dir
+    assert tmp_workspace.package_root_dir == tmp_workspace.workspace_dir / "packages"
+    assert tmp_workspace.optional_deps == ["dev"]
+    assert tmp_workspace.coverage_baseline == 100
 
 
 def test_workspace_find_explicit_dir_missing_config(tmp_path: Path) -> None:
     assert Workspace.probe(cwd=Path.cwd(), workspace_dir=tmp_path) is None
 
 
-def test_workspace_make_bin_path(tmp_workspace_dir: Path) -> None:
+def test_workspace_make_bin_path(tmp_workspace: Workspace) -> None:
     """Test Workspace.make_bin_path constructs correct path."""
-    workspace = Workspace.open(tmp_workspace_dir)
-
-    bin_path = workspace.make_bin_path("pytest", must_exist=False)
+    bin_path = tmp_workspace.make_bin_path("pytest", must_exist=False)
 
     assert "pytest" in str(bin_path)
     assert ".venv" in str(bin_path)
 
 
-def test_workspace_make_bin_path_must_exist(tmp_workspace_dir: Path) -> None:
+def test_workspace_make_bin_path_must_exist(tmp_workspace: Workspace) -> None:
     """Test Workspace.make_bin_path raises when binary doesn't exist."""
-    workspace = Workspace.open(tmp_workspace_dir)
-
-    with pytest.raises(ByggeError, match="Cannot find binary"):
-        _ = workspace.make_bin_path("nonexistent", must_exist=True)
+    with raises(ByggeError, match="Cannot find binary"):
+        _ = tmp_workspace.make_bin_path("nonexistent", must_exist=True)
 
 
-def test_target_info_build(tmp_workspace_dir: Path, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
+def test_target_info_build(tmp_workspace: Workspace, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test TargetInfo.build discovers packages and requirements."""
-    workspace = Workspace.open(tmp_workspace_dir)
-
-    target_info = TargetInfo.build(workspace=workspace)
+    target_info = TargetInfo.build(workspace=tmp_workspace)
 
     assert len(target_info.ordered_metas) == 1
     assert target_info.ordered_metas[0].name == "test_pkg"

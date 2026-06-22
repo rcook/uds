@@ -4,7 +4,7 @@ from pathlib import Path
 from subprocess import CalledProcessError, CompletedProcess
 from unittest.mock import MagicMock
 
-import pytest
+from pytest import raises
 
 from bygge.contracts import Input, PluginResult
 from bygge.plugins.pytest_run_mixin import PytestRunMixin
@@ -126,5 +126,5 @@ def test_pytest_run_mixin_unexpected_returncode(mock_subprocess: MagicMock) -> N
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=99, stdout="", stderr="")
     mixin = PytestRunMixin()
 
-    with pytest.raises(CalledProcessError):
+    with raises(CalledProcessError):
         _ = mixin.run_pytest(cmd=["pytest"], cwd=Path("/tmp"))

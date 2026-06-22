@@ -4,7 +4,7 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import MagicMock
 
-import pytest
+from pytest import CaptureFixture, raises
 
 from bygge import ByggeError
 from bygge.cmd.check_cmd import check
@@ -17,15 +17,14 @@ from bygge.workspace import Workspace
 
 
 def test_fmt_fix_mode(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test fmt command in fix mode."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    fmt(workspace=workspace, fix=True, args=())
+    fmt(workspace=tmp_workspace, fix=True, args=())
 
     assert mock_subprocess.call_count == 2
     first_call = mock_subprocess.call_args_list[0]
@@ -34,33 +33,30 @@ def test_fmt_fix_mode(
 
 
 def test_fmt_check_mode(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test fmt command in check mode."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    fmt(workspace=workspace, fix=False, args=())
+    fmt(workspace=tmp_workspace, fix=False, args=())
 
     assert mock_subprocess.call_count == 2
     first_call = mock_subprocess.call_args_list[0]
     assert "--check" in first_call[0][0]
 
 
-def test_fmt_format_failure(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
+def test_fmt_format_failure(tmp_workspace: Workspace, mock_subprocess: MagicMock) -> None:
     """Test fmt command when format check fails."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
-    with pytest.raises(ByggeError, match="No format plugin found"):
-        fmt(workspace=workspace, fix=False, args=())
+    with raises(ByggeError, match="No format plugin found"):
+        fmt(workspace=tmp_workspace, fix=False, args=())
 
 
-def test_fmt_isort_failure(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
+def test_fmt_isort_failure(tmp_workspace: Workspace, mock_subprocess: MagicMock) -> None:
     """Test fmt command when import sort fails."""
-    workspace = Workspace.open(tmp_workspace_dir)
 
     def side_effect(cmd: list[str], *_args: object, **_kwargs: object) -> CompletedProcess[str]:
         if "format" in cmd:
@@ -69,20 +65,19 @@ def test_fmt_isort_failure(tmp_workspace_dir: Path, mock_subprocess: MagicMock) 
 
     mock_subprocess.side_effect = side_effect
 
-    with pytest.raises(ByggeError, match="No format plugin found"):
-        fmt(workspace=workspace, fix=False, args=())
+    with raises(ByggeError, match="No format plugin found"):
+        fmt(workspace=tmp_workspace, fix=False, args=())
 
 
 def test_lint_no_fix(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test lint command without fix."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    lint(workspace=workspace, fix=False, args=())
+    lint(workspace=tmp_workspace, fix=False, args=())
 
     assert mock_subprocess.call_count == 1
     call_args = mock_subprocess.call_args_list[0]
@@ -92,41 +87,38 @@ def test_lint_no_fix(
 
 
 def test_lint_with_fix(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test lint command with fix."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    lint(workspace=workspace, fix=True, args=())
+    lint(workspace=tmp_workspace, fix=True, args=())
 
     assert mock_subprocess.call_count == 1
     call_args = mock_subprocess.call_args_list[0]
     assert "--fix" in call_args[0][0]
 
 
-def test_lint_failure(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
+def test_lint_failure(tmp_workspace: Workspace, mock_subprocess: MagicMock) -> None:
     """Test lint command when lint fails."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
-    with pytest.raises(ByggeError, match="No lint plugin found"):
-        lint(workspace=workspace, fix=False, args=())
+    with raises(ByggeError, match="No lint plugin found"):
+        lint(workspace=tmp_workspace, fix=False, args=())
 
 
 def test_check_runs_all_checks(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
-    capsys: pytest.CaptureFixture[str],
+    capsys: CaptureFixture[str],
 ) -> None:
     """Test check command runs all checks."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    check(workspace=workspace)
+    check(workspace=tmp_workspace)
 
     captured = capsys.readouterr()
     assert "Checking formatting..." in captured.out
@@ -137,48 +129,45 @@ def test_check_runs_all_checks(
 
 
 def test_test_command_success(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test test command with successful run."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     # Should succeed with mocked subprocess
-    run_test(workspace=workspace, args=())
+    run_test(workspace=tmp_workspace, args=())
 
     # Verify subprocess was called
     assert mock_subprocess.call_count > 0
 
 
 def test_coverage_command_success(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test coverage command with successful run."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     # Should succeed with mocked subprocess
-    coverage(workspace=workspace, args=())
+    coverage(workspace=tmp_workspace, args=())
 
     # Verify subprocess was called
     assert mock_subprocess.call_count > 0
 
 
 def test_type_check_command_success(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test type_check command with successful run."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     # Should succeed with mocked subprocess
-    type_check(workspace=workspace, args=())
+    type_check(workspace=tmp_workspace, args=())
 
     # Verify subprocess was called
     assert mock_subprocess.call_count > 0

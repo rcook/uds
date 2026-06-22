@@ -14,51 +14,46 @@ from bygge.workspace import Workspace
 
 
 def test_coverage_command_failure(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test coverage command when coverage run fails."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
     with raises(ByggeError, match="Coverage run failed"):
-        coverage(workspace=workspace, args=())
+        coverage(workspace=tmp_workspace, args=())
 
 
 def test_test_command_failure(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test test command when test run fails."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
     with raises(ByggeError, match="Test run failed"):
-        run_test(workspace=workspace, args=())
+        run_test(workspace=tmp_workspace, args=())
 
 
 def test_type_check_command_failure(
-    tmp_workspace_dir: Path,
+    tmp_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test type_check command when type check fails."""
-    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
     with raises(ByggeError, match="Type check run failed"):
-        type_check(workspace=workspace, args=())
+        type_check(workspace=tmp_workspace, args=())
 
 
-def test_coverage_command_no_tool_found(tmp_workspace_dir: Path, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
+def test_coverage_command_no_tool_found(tmp_workspace: Workspace, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test coverage command when no coverage tool is found."""
     from unittest.mock import patch
 
     from bygge.plugins import Plugins
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     # Mock PLUGINS to have no coverage tools
     empty_plugins = Plugins()
@@ -67,16 +62,14 @@ def test_coverage_command_no_tool_found(tmp_workspace_dir: Path, tmp_package: Pa
         patch("bygge.cmd.coverage_cmd.PLUGINS", empty_plugins),
         raises(ByggeError, match="No coverage plugin found"),
     ):
-        coverage(workspace=workspace, args=())
+        coverage(workspace=tmp_workspace, args=())
 
 
-def test_test_command_no_tool_found(tmp_workspace_dir: Path, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
+def test_test_command_no_tool_found(tmp_workspace: Workspace, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test test command when no test tool is found."""
     from unittest.mock import patch
 
     from bygge.plugins import Plugins
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     # Mock PLUGINS to have no test tools
     empty_plugins = Plugins()
@@ -85,16 +78,14 @@ def test_test_command_no_tool_found(tmp_workspace_dir: Path, tmp_package: Path) 
         patch("bygge.cmd.test_cmd.PLUGINS", empty_plugins),
         raises(ByggeError, match="No test plugin found"),
     ):
-        run_test(workspace=workspace, args=())
+        run_test(workspace=tmp_workspace, args=())
 
 
-def test_type_check_command_no_tool_found(tmp_workspace_dir: Path, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
+def test_type_check_command_no_tool_found(tmp_workspace: Workspace, tmp_package: Path) -> None:  # pyright: ignore[reportUnusedParameter]
     """Test type_check command when no type check tool is found."""
     from unittest.mock import patch
 
     from bygge.plugins import Plugins
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     # Mock PLUGINS to have no type check tools
     empty_plugins = Plugins()
@@ -103,4 +94,4 @@ def test_type_check_command_no_tool_found(tmp_workspace_dir: Path, tmp_package: 
         patch("bygge.cmd.type_check_cmd.PLUGINS", empty_plugins),
         raises(ByggeError, match="No type check plugin found"),
     ):
-        type_check(workspace=workspace, args=())
+        type_check(workspace=tmp_workspace, args=())

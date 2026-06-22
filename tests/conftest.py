@@ -4,20 +4,21 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import MagicMock
 
-import pytest
+from pytest import MonkeyPatch, fixture
 
 from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
+from bygge.workspace import Workspace
 
 
-@pytest.fixture
-def mock_subprocess(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
+@fixture
+def mock_subprocess(monkeypatch: MonkeyPatch) -> MagicMock:
     """Mock subprocess.run to avoid actual shell commands in tests."""
     mock = MagicMock(return_value=CompletedProcess(args=[], returncode=0, stdout="", stderr=""))
     monkeypatch.setattr("subprocess.run", mock)
     return mock
 
 
-@pytest.fixture
+@fixture
 def tmp_workspace_dir(tmp_path: Path) -> Path:
     """Create a minimal workspace with .bygge.toml."""
     workspace_dir = tmp_path / "workspace"
@@ -56,7 +57,12 @@ def tmp_workspace_dir(tmp_path: Path) -> Path:
     return workspace_dir
 
 
-@pytest.fixture
+@fixture
+def tmp_workspace(tmp_workspace_dir: Path) -> Workspace:
+    return Workspace.open(tmp_workspace_dir)
+
+
+@fixture
 def tmp_package(tmp_workspace_dir: Path) -> Path:
     """Create a minimal package with pyproject.toml inside tmp_workspace."""
     pkg_dir = tmp_workspace_dir / "packages" / "test_pkg"

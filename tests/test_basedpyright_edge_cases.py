@@ -12,11 +12,10 @@ from bygge.workspace import Workspace
 
 
 def test_basedpyright_run_type_check_unexpected_returncode(
-    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Basedpyright run_type_check with unexpected return code."""
     plugin = Basedpyright()
-    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -25,4 +24,4 @@ def test_basedpyright_run_type_check_unexpected_returncode(
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=99, stdout="", stderr="")
 
     with raises(CalledProcessError):
-        _ = plugin.run_type_check(workspace=workspace, payload=payload, args=())
+        _ = plugin.run_type_check(workspace=tmp_workspace, payload=payload, args=())

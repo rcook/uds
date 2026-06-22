@@ -4,7 +4,7 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import MagicMock
 
-import pytest
+from pytest import LogCaptureFixture
 
 from bygge.contracts import Input, Payload, PluginResult
 from bygge.plugins.basedpyright import Basedpyright
@@ -46,7 +46,7 @@ def test_hatchling_non_hatchling_backend(tmp_package: Path) -> None:
     assert source_dirs is None
 
 
-def test_hatchling_missing_packages(tmp_package: Path, caplog: pytest.LogCaptureFixture) -> None:
+def test_hatchling_missing_packages(tmp_package: Path, caplog: LogCaptureFixture) -> None:
     """Test Hatchling plugin handles missing packages config."""
     plugin = Hatchling()
     pyproject_path = tmp_package / "pyproject.toml"
@@ -118,11 +118,10 @@ def test_basedpyright_is_installed(tmp_package: Path) -> None:
 
 
 def test_basedpyright_run_type_check_success(
-    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Basedpyright run_type_check with success."""
     plugin = Basedpyright()
-    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -130,16 +129,15 @@ def test_basedpyright_run_type_check_success(
 
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    result = plugin.run_type_check(workspace=workspace, payload=payload, args=())
+    result = plugin.run_type_check(workspace=tmp_workspace, payload=payload, args=())
     assert result is PluginResult.PASSED
 
 
 def test_basedpyright_run_type_check_failure(
-    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Basedpyright run_type_check with failure."""
     plugin = Basedpyright()
-    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -147,7 +145,7 @@ def test_basedpyright_run_type_check_failure(
 
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
-    result = plugin.run_type_check(workspace=workspace, payload=payload, args=())
+    result = plugin.run_type_check(workspace=tmp_workspace, payload=payload, args=())
     assert result is PluginResult.FAILED
 
 
@@ -163,11 +161,10 @@ def test_pytest_is_installed(tmp_package: Path) -> None:
 
 
 def test_pytest_run_test_success(
-    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Pytest run_test with success."""
     plugin = Pytest()
-    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -175,16 +172,15 @@ def test_pytest_run_test_success(
 
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    result = plugin.run_test(workspace=workspace, payload=payload, args=())
+    result = plugin.run_test(workspace=tmp_workspace, payload=payload, args=())
     assert result is PluginResult.PASSED
 
 
 def test_pytest_run_test_failure(
-    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Pytest run_test with failure."""
     plugin = Pytest()
-    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -192,7 +188,7 @@ def test_pytest_run_test_failure(
 
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="")
 
-    result = plugin.run_test(workspace=workspace, payload=payload, args=())
+    result = plugin.run_test(workspace=tmp_workspace, payload=payload, args=())
     assert result is PluginResult.FAILED
 
 
@@ -208,11 +204,10 @@ def test_pytest_cov_is_installed(tmp_package: Path) -> None:
 
 
 def test_pytest_cov_run_coverage_success(
-    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test PytestCov run_coverage with success."""
     plugin = PytestCov()
-    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -221,7 +216,7 @@ def test_pytest_cov_run_coverage_success(
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     result = plugin.run_coverage(
-        workspace=workspace, payload=payload, args=(), coverage_baseline=100
+        workspace=tmp_workspace, payload=payload, args=(), coverage_baseline=100
     )
     assert result is PluginResult.PASSED
     call_args = mock_subprocess.call_args_list[0]

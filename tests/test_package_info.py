@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from tomllib import TOMLDecodeError
 
-import pytest
+from pytest import raises
 
 from bygge.contracts import Input
 from bygge.package_info import PackageInfo
@@ -69,7 +69,7 @@ def test_package_meta_load_invalid_toml(tmp_workspace_dir: Path) -> None:
     _ = pyproject_path.write_text("invalid toml content [[[")
 
     # load_toml raises an exception on invalid TOML
-    with pytest.raises(TOMLDecodeError):
+    with raises(TOMLDecodeError):
         _ = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
 
 
@@ -109,7 +109,7 @@ def test_package_info_make_invalid_toml(tmp_workspace_dir: Path) -> None:
     input = Input(pyproject_path=pyproject_path, optional_deps=[])
 
     # load_toml raises an exception on invalid TOML
-    with pytest.raises(TOMLDecodeError):
+    with raises(TOMLDecodeError):
         _ = PackageInfo.make(plugins=plugins, input=input)
 
 

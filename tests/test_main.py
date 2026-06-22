@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Self, cast
 
 import click
-import pytest
 from click import Command
 from click.testing import CliRunner
-from pytest import LogCaptureFixture, MonkeyPatch
+from pytest import LogCaptureFixture, MonkeyPatch, mark
 
 from bygge import ByggeError
 from bygge.main import commit_unchecked_cmd, coverage_cmd, lint_cmd, type_check_cmd
 from bygge.main import test_cmd as __test_cmd
+from bygge.workspace import Workspace
 
 
 @dataclass(frozen=False, slots=True)
@@ -36,7 +35,7 @@ class _Capture:
         return capture
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     "cmd_under_test, expected_extra_kwargs",
     [
         (commit_unchecked_cmd, None),
@@ -151,15 +150,12 @@ def test_bygge_group_flexible_with_flag_options() -> None:
     assert "verbose=True" in result.output
 
 
-def test_is_running_from_project_venv(tmp_workspace_dir: Path) -> None:
+def test_is_running_from_project_venv(tmp_workspace: Workspace) -> None:
     """Test _is_running_from_project_venv function."""
     from bygge.main import _is_running_from_project_venv  # pyright: ignore[reportPrivateUsage]
-    from bygge.workspace import Workspace
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     # Since we're running tests from the project venv, this should be True
-    result = _is_running_from_project_venv(workspace)
+    result = _is_running_from_project_venv(tmp_workspace)
     assert isinstance(result, bool)
 
 
@@ -178,43 +174,38 @@ def test_log_executable_info(caplog: LogCaptureFixture) -> None:
 
 
 def test_get_delegate_venv_bygge_path_no_binary(
-    tmp_workspace_dir: Path, caplog: LogCaptureFixture
+    tmp_workspace: Workspace, caplog: LogCaptureFixture
 ) -> None:
     """Test _should_delegate_to_venv_bygge when venv exists but has no bygge binary."""
     import logging
 
     from bygge.main import _get_delegate_venv_bygge_path  # pyright: ignore[reportPrivateUsage]
-    from bygge.workspace import Workspace
 
     caplog.set_level(logging.DEBUG)
-    workspace = Workspace.open(tmp_workspace_dir)
 
     # The tmp workspace venv exists but has no bygge binary, should return False
-    result = _get_delegate_venv_bygge_path(workspace)
+    result = _get_delegate_venv_bygge_path(tmp_workspace)
     assert result is None
     # Should warn about missing bygge binary
     assert any("bygge not found" in record.message for record in caplog.records)
 
 
 def test_get_delegate_venv_bygge_path_no_venv(
-    tmp_workspace_dir: Path, caplog: LogCaptureFixture
+    tmp_workspace: Workspace, caplog: LogCaptureFixture
 ) -> None:
     """Test _should_delegate_to_venv_bygge when venv doesn't exist."""
     import logging
     import shutil
 
     from bygge.main import _get_delegate_venv_bygge_path  # pyright: ignore[reportPrivateUsage]
-    from bygge.workspace import Workspace
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     # Remove the venv directory
-    venv_dir = workspace.venv_dir
+    venv_dir = tmp_workspace.venv_dir
     if venv_dir.exists():
         shutil.rmtree(venv_dir)
 
     caplog.set_level(logging.DEBUG)
-    result = _get_delegate_venv_bygge_path(workspace)
+    result = _get_delegate_venv_bygge_path(tmp_workspace)
     assert result is None
     # Should log that no venv was found
     assert any("No virtual environment found" in record.message for record in caplog.records)

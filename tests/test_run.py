@@ -4,7 +4,7 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import patch
 
-import pytest
+from pytest import LogCaptureFixture
 
 from bygge.run import run_subprocess
 
@@ -22,7 +22,7 @@ def test_run_subprocess_dry_run_mode() -> None:
     # In dry-run, no actual command is executed
 
 
-def test_run_subprocess_logs_command(caplog: pytest.LogCaptureFixture) -> None:
+def test_run_subprocess_logs_command(caplog: LogCaptureFixture) -> None:
     import logging
 
     with caplog.at_level(logging.DEBUG):

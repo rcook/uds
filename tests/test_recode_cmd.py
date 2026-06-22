@@ -13,14 +13,12 @@ from bygge.workspace import Workspace
 _RESOURCE_DIR: Path = Path(__file__).parent / "resources"
 
 
-def test_recode_fix(tmp_workspace_dir: Path) -> None:
+def test_recode_fix(tmp_workspace: Workspace) -> None:
     @dataclass(frozen=True, slots=True)
     class FileInfo:
         input_bytes: bytes
         output_bytes: bytes
         test_path: Path
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     files: list[FileInfo] = []
     for i in range(3):
@@ -29,7 +27,7 @@ def test_recode_fix(tmp_workspace_dir: Path) -> None:
         output_file_name = f"example{i}-output.txt"
         output_path = _RESOURCE_DIR / output_file_name
 
-        test_path = tmp_workspace_dir / f"{input_file_name}.py"
+        test_path = tmp_workspace.workspace_dir / f"{input_file_name}.py"
         _ = shutil.copyfile(input_path, test_path)
         files.append(
             FileInfo(
@@ -43,21 +41,19 @@ def test_recode_fix(tmp_workspace_dir: Path) -> None:
     file1 = files[1]
     file2 = files[2]
 
-    recode(workspace=workspace, fix=True)
+    recode(workspace=tmp_workspace, fix=True)
 
     assert file0.test_path.read_bytes() == file0.output_bytes
     assert file1.test_path.read_bytes() == file1.output_bytes
     assert file2.test_path.read_bytes() == file2.output_bytes
 
 
-def test_recode_check(tmp_workspace_dir: Path) -> None:
+def test_recode_check(tmp_workspace: Workspace) -> None:
     @dataclass(frozen=True, slots=True)
     class FileInfo:
         input_bytes: bytes
         output_bytes: bytes
         test_path: Path
-
-    workspace = Workspace.open(tmp_workspace_dir)
 
     files: list[FileInfo] = []
     for i in range(3):
@@ -66,7 +62,7 @@ def test_recode_check(tmp_workspace_dir: Path) -> None:
         output_file_name = f"example{i}-output.txt"
         output_path = _RESOURCE_DIR / output_file_name
 
-        test_path = tmp_workspace_dir / f"{input_file_name}.py"
+        test_path = tmp_workspace.workspace_dir / f"{input_file_name}.py"
         _ = shutil.copyfile(input_path, test_path)
         files.append(
             FileInfo(
@@ -81,7 +77,7 @@ def test_recode_check(tmp_workspace_dir: Path) -> None:
     file2 = files[2]
 
     with raises(ByggeError, match="Detected non-ASCII characters in 3 files"):
-        recode(workspace=workspace, fix=False)
+        recode(workspace=tmp_workspace, fix=False)
 
     assert file0.test_path.read_bytes() == file0.input_bytes
     assert file1.test_path.read_bytes() == file1.input_bytes

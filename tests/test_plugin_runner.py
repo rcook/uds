@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, Mock
 
-import pytest
+from pytest import LogCaptureFixture, fixture
 
 from bygge.cmd.plugin_runner import PluginRunner
 from bygge.cmd.run_result import RunResult
@@ -13,7 +13,7 @@ from bygge.plugins import Plugins, RuffFormatPlugin
 from bygge.workspace import Workspace
 
 
-@pytest.fixture
+@fixture
 def mock_plugins() -> Plugins:
     """Mock plugins for testing."""
     from bygge.plugins import (
@@ -36,13 +36,13 @@ def mock_plugins() -> Plugins:
     )
 
 
-@pytest.fixture
+@fixture
 def mock_workspace(tmp_workspace_dir: Path) -> Workspace:
     """Create a workspace for testing."""
     return Workspace.open(tmp_workspace_dir)
 
 
-@pytest.fixture
+@fixture
 def mock_test_plugin() -> _TestPlugin:
     """Mock test plugin."""
     plugin = Mock(spec=_TestPlugin)
@@ -50,7 +50,7 @@ def mock_test_plugin() -> _TestPlugin:
     return plugin
 
 
-@pytest.fixture
+@fixture
 def mock_coverage_plugin() -> CoveragePlugin:
     """Mock coverage plugin."""
     plugin = Mock(spec=CoveragePlugin)
@@ -58,7 +58,7 @@ def mock_coverage_plugin() -> CoveragePlugin:
     return plugin
 
 
-@pytest.fixture
+@fixture
 def mock_type_check_plugin() -> TypeCheckPlugin:
     """Mock type check plugin."""
     plugin = Mock(spec=TypeCheckPlugin)
@@ -80,7 +80,7 @@ def test_runner_initialization(
 def test_run_test_no_plugins(
     mock_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
-    caplog: pytest.LogCaptureFixture,
+    caplog: LogCaptureFixture,
 ) -> None:
     """Test run_test when no test plugins are available."""
     # Use plugins with no plugins installed
@@ -104,7 +104,7 @@ def test_run_test_no_plugins(
 def test_run_coverage_no_plugins(
     mock_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
-    caplog: pytest.LogCaptureFixture,
+    caplog: LogCaptureFixture,
 ) -> None:
     """Test run_coverage when no coverage plugins are available."""
     # Use plugins with no plugins installed
@@ -128,7 +128,7 @@ def test_run_coverage_no_plugins(
 def test_run_type_check_no_plugins(
     mock_workspace: Workspace,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
-    caplog: pytest.LogCaptureFixture,
+    caplog: LogCaptureFixture,
 ) -> None:
     """Test run_type_check when no type check plugins are available."""
     # Use plugins with no plugins installed
