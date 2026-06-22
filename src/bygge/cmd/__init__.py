@@ -8,6 +8,7 @@ from .hook_cmd import hook
 from .info_cmd import info
 from .init_cmd import init
 from .lint_cmd import lint
+from .new_cmd import new
 from .recode_cmd import recode
 from .run_result import RunResult
 from .test_cmd import test
@@ -24,6 +25,7 @@ __all__ = [
     "info",
     "init",
     "lint",
+    "new",
     "recode",
     "test",
     "type_check",

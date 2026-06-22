@@ -8,7 +8,17 @@ from pathlib import Path
 from typing import Any, override
 
 import click
-from click import Context, Group, argument, option, pass_context, pass_obj, version_option
+from click import (
+    ClickException,
+    Context,
+    Group,
+    UsageError,
+    argument,
+    option,
+    pass_context,
+    pass_obj,
+    version_option,
+)
 
 from bygge import VERSION, ByggeError
 from bygge.cmd import (
@@ -20,12 +30,13 @@ from bygge.cmd import (
     info,
     init,
     lint,
+    new,
     recode,
     test,
     type_check,
     unhook,
 )
-from bygge.constants import IS_WINDOWS
+from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
 from bygge.run import run_subprocess
 from bygge.util import (
     ARGS_ARG,
@@ -37,7 +48,8 @@ from bygge.util import (
 )
 from bygge.util.cli import FIX_CHECK_OPT, UNKNOWN_ARGS_CTX, NamedChoice
 from bygge.util.env import env_truthy
-from bygge.workspace import Workspace
+
+from .workspace import Workspace
 
 logger = logging.getLogger(__name__)
 
@@ -215,43 +227,53 @@ def main(
     handler = logging.getLogger().handlers[0]
     handler.setFormatter(ColourFormatter("[%(levelname)s] %(message)s"))
 
-    # Log executable information
     _log_executable_info()
 
-    # Find workspace (may not exist for init command)
-    workspace: Workspace | None = None
-    try:
-        workspace = Workspace.find(cwd=cwd, workspace_dir=workspace_dir)
-    except click.ClickException as e:
-        # No workspace found - store the exception to re-raise later if needed
-        if ctx.invoked_subcommand != "init":
-            # For non-init commands, workspace is required
-            raise
-        # For init command, workspace not being found is acceptable
-        logger.debug(f"No workspace found: {e}")
+    assert ctx.invoked_subcommand is not None
+    is_new = ctx.invoked_subcommand == "new"
 
-    # Check delegation and warnings
-    if workspace and ctx.invoked_subcommand:
-        if ctx.invoked_subcommand == "init":
-            # Warn if running init from project's own venv
-            if _is_running_from_project_venv(workspace):
-                warning(
-                    "Running 'init' from the project's own virtual environment. "
-                    + "Consider using a global or external bygge installation for bootstrapping."
-                )
+    verified_workspace_dir = Workspace.probe(cwd=cwd, workspace_dir=workspace_dir)
+    if verified_workspace_dir is None:
+        if is_new:
+            ctx.obj = cwd if workspace_dir is None else workspace_dir
+            return
+
+        if workspace_dir is None:
+            raise ClickException(f"Cannot find workspace at {cwd} or in any of its parents")
         else:
-            # For non-init commands, check if we should delegate to venv bygge
-            if (venv_bygge_path := _get_delegate_venv_bygge_path(workspace)) is not None:
-                if do_not_delegate:
-                    debug("--do-not-delegate was passed so we'll keep using this bygge")
-                else:
-                    warning(
-                        "Running bygge from outside project's virtual environment. "
-                        + f"Delegating to {venv_bygge_path}"
-                    )
-                    _delegate_to_venv_bygge(workspace=workspace, venv_bygge_path=venv_bygge_path)
+            raise ClickException(f"No workspace found in {workspace_dir}")
+
+    if is_new:
+        raise UsageError(f"There is already a bygge workspace present at {verified_workspace_dir}")
+
+    workspace = Workspace.open(workspace_dir=verified_workspace_dir, cwd=cwd)
+
+    if ctx.invoked_subcommand == "init":
+        # Warn if running "init" from project's own virtual environment
+        if _is_running_from_project_venv(workspace):
+            warning(
+                'Running "init" from the project\'s own virtual environment. '
+                + "Consider using a global or external bygge installation for bootstrapping."
+            )
+    else:
+        # All other commands can be delegated to the virtual environment's own bygge
+        if (venv_bygge_path := _get_delegate_venv_bygge_path(workspace)) is not None:
+            if do_not_delegate:
+                debug("--do-not-delegate was passed so we'll keep using this bygge")
+            else:
+                warning(
+                    "Running bygge from outside project's virtual environment. "
+                    + f"Delegating to {venv_bygge_path}"
+                )
+                _delegate_to_venv_bygge(workspace=workspace, venv_bygge_path=venv_bygge_path)
 
     ctx.obj = workspace
+
+
+@main.command("new", help=f"Create a new {DOT_FILE_NAME} file")
+@pass_obj
+def new_cmd(workspace_dir: Path) -> None:  # pragma: nocover
+    new(workspace_dir=workspace_dir)
 
 
 @main.command("init", help="Set up the development environment")

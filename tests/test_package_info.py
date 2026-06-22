@@ -38,9 +38,9 @@ def test_package_meta_load(tmp_package: Path) -> None:
     assert len(meta.requirements) > 0
 
 
-def test_package_meta_load_missing_name(tmp_workspace: Path) -> None:
+def test_package_meta_load_missing_name(tmp_workspace_dir: Path) -> None:
     """Test PackageMeta.load returns None when name is missing."""
-    pyproject_path = tmp_workspace / "invalid.toml"
+    pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("[project]\nversion = '0.1.0'\n")
 
     meta = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
@@ -48,24 +48,24 @@ def test_package_meta_load_missing_name(tmp_workspace: Path) -> None:
     assert meta is None
 
 
-def test_package_meta_load_missing_build_backend(tmp_workspace: Path) -> None:
+def test_package_meta_load_missing_build_backend(tmp_workspace_dir: Path) -> None:
     """Test PackageMeta.load returns None when build backend is missing."""
-    pyproject_path = tmp_workspace / "invalid.toml"
+    pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("[project]\nname = 'test'\n")
 
     meta = PackageMeta.load(pyproject_path=pyproject_path, optional_deps=[])
 
     assert meta is not None
     assert meta.name == "test"
-    assert meta.package_dir == tmp_workspace
+    assert meta.package_dir == tmp_workspace_dir
     assert meta.build_backend is None
     assert len(meta.build_requires) == 0
     assert len(meta.requirements) == 0
 
 
-def test_package_meta_load_invalid_toml(tmp_workspace: Path) -> None:
+def test_package_meta_load_invalid_toml(tmp_workspace_dir: Path) -> None:
     """Test PackageMeta.load handles invalid TOML."""
-    pyproject_path = tmp_workspace / "invalid.toml"
+    pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("invalid toml content [[[")
 
     # load_toml raises an exception on invalid TOML
@@ -93,7 +93,7 @@ def test_package_info_make(tmp_package: Path) -> None:
     assert info.name == "test_pkg"
 
 
-def test_package_info_make_invalid_toml(tmp_workspace: Path) -> None:
+def test_package_info_make_invalid_toml(tmp_workspace_dir: Path) -> None:
     """Test PackageInfo.make handles invalid TOML."""
     plugins = Plugins(
         source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
@@ -104,7 +104,7 @@ def test_package_info_make_invalid_toml(tmp_workspace: Path) -> None:
         format_plugins=[RuffFormatPlugin()],
         lint_plugins=[RuffCheckPlugin()],
     )
-    pyproject_path = tmp_workspace / "invalid.toml"
+    pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("invalid toml [[[")
     input = Input(pyproject_path=pyproject_path, optional_deps=[])
 
@@ -113,7 +113,7 @@ def test_package_info_make_invalid_toml(tmp_workspace: Path) -> None:
         _ = PackageInfo.make(plugins=plugins, input=input)
 
 
-def test_package_info_make_missing_name(tmp_workspace: Path) -> None:
+def test_package_info_make_missing_name(tmp_workspace_dir: Path) -> None:
     """Test PackageInfo.make returns None when name is missing."""
     plugins = Plugins(
         source_dir_plugins=[Hatchling(), Setuptools(), MagicSources()],
@@ -124,7 +124,7 @@ def test_package_info_make_missing_name(tmp_workspace: Path) -> None:
         format_plugins=[RuffFormatPlugin()],
         lint_plugins=[RuffCheckPlugin()],
     )
-    pyproject_path = tmp_workspace / "invalid.toml"
+    pyproject_path = tmp_workspace_dir / "invalid.toml"
     _ = pyproject_path.write_text("[project]\nversion = '0.1.0'\n")
     input = Input(pyproject_path=pyproject_path, optional_deps=[])
 

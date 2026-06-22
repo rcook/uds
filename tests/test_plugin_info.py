@@ -41,9 +41,9 @@ def test_plugin_info_find_returns_first_installed(tmp_package: Path) -> None:
     assert isinstance(plugin_info.plugin, Basedpyright)
 
 
-def test_plugin_info_find_returns_none_when_no_plugin_installed(tmp_workspace: Path) -> None:
+def test_plugin_info_find_returns_none_when_no_plugin_installed(tmp_workspace_dir: Path) -> None:
     """Test PluginInfo.find returns None when no plugins are installed."""
-    pkg_dir = tmp_workspace / "packages" / "no_plugins"
+    pkg_dir = tmp_workspace_dir / "packages" / "no_plugins"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"

@@ -7,10 +7,10 @@ from bygge.plugins.setuptools import Setuptools
 from bygge.util import load_toml
 
 
-def test_setuptools_missing_where(tmp_workspace: Path) -> None:
+def test_setuptools_missing_where(tmp_workspace_dir: Path) -> None:
     """Test Setuptools plugin returns None when where is missing."""
     plugin = Setuptools()
-    pkg_dir = tmp_workspace / "packages" / "setuptools_no_where"
+    pkg_dir = tmp_workspace_dir / "packages" / "setuptools_no_where"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"

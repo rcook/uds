@@ -151,12 +151,12 @@ def test_bygge_group_flexible_with_flag_options() -> None:
     assert "verbose=True" in result.output
 
 
-def test_is_running_from_project_venv(tmp_workspace: Path) -> None:
+def test_is_running_from_project_venv(tmp_workspace_dir: Path) -> None:
     """Test _is_running_from_project_venv function."""
     from bygge.main import _is_running_from_project_venv  # pyright: ignore[reportPrivateUsage]
     from bygge.workspace import Workspace
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # Since we're running tests from the project venv, this should be True
     result = _is_running_from_project_venv(workspace)
@@ -178,7 +178,7 @@ def test_log_executable_info(caplog: LogCaptureFixture) -> None:
 
 
 def test_get_delegate_venv_bygge_path_no_binary(
-    tmp_workspace: Path, caplog: LogCaptureFixture
+    tmp_workspace_dir: Path, caplog: LogCaptureFixture
 ) -> None:
     """Test _should_delegate_to_venv_bygge when venv exists but has no bygge binary."""
     import logging
@@ -187,7 +187,7 @@ def test_get_delegate_venv_bygge_path_no_binary(
     from bygge.workspace import Workspace
 
     caplog.set_level(logging.DEBUG)
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # The tmp workspace venv exists but has no bygge binary, should return False
     result = _get_delegate_venv_bygge_path(workspace)
@@ -197,7 +197,7 @@ def test_get_delegate_venv_bygge_path_no_binary(
 
 
 def test_get_delegate_venv_bygge_path_no_venv(
-    tmp_workspace: Path, caplog: LogCaptureFixture
+    tmp_workspace_dir: Path, caplog: LogCaptureFixture
 ) -> None:
     """Test _should_delegate_to_venv_bygge when venv doesn't exist."""
     import logging
@@ -206,7 +206,7 @@ def test_get_delegate_venv_bygge_path_no_venv(
     from bygge.main import _get_delegate_venv_bygge_path  # pyright: ignore[reportPrivateUsage]
     from bygge.workspace import Workspace
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # Remove the venv directory
     venv_dir = workspace.venv_dir

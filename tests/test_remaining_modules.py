@@ -16,13 +16,13 @@ from bygge.workspace import Workspace
 
 
 def test_hook_configures_git_and_creates_pre_commit_hook(
-    tmp_workspace: Path, mock_subprocess: MagicMock, capsys: CaptureFixture[str]
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock, capsys: CaptureFixture[str]
 ) -> None:
     """Test hooks command configures git hooks path."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
-    pre_commit_path = tmp_workspace / "hooks" / "pre-commit"
+    pre_commit_path = tmp_workspace_dir / "hooks" / "pre-commit"
     assert not pre_commit_path.exists()
 
     pre_commit_path.parent.mkdir(parents=True)
@@ -56,10 +56,10 @@ def test_hook_configures_git_and_creates_pre_commit_hook(
 
 
 def test_unhook_unsets_git_config(
-    tmp_workspace: Path, mock_subprocess: MagicMock, capsys: CaptureFixture[str]
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock, capsys: CaptureFixture[str]
 ) -> None:
     """Test unhook command unsets git hooks path."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     unhook(workspace=workspace)
@@ -72,9 +72,9 @@ def test_unhook_unsets_git_config(
     assert "--unset" in call_args[0][0]
 
 
-def test_commit_unchecked(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_commit_unchecked(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
     """Test commit_unchecked bypasses git hooks."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     commit_unchecked(workspace=workspace, args=("-m", "test commit"))
@@ -89,9 +89,9 @@ def test_commit_unchecked(tmp_workspace: Path, mock_subprocess: MagicMock) -> No
     assert "test commit" in cmd
 
 
-def test_init_creates_venv(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_init_creates_venv(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
     """Test init command creates virtual environment."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     # Remove the venv created by fixture
     import shutil
 
@@ -110,12 +110,12 @@ def test_init_creates_venv(tmp_workspace: Path, mock_subprocess: MagicMock) -> N
 
 
 def test_init_with_install(
-    tmp_workspace: Path,
+    tmp_workspace_dir: Path,
     tmp_package: Path,  # pyright: ignore[reportUnusedParameter]
     mock_subprocess: MagicMock,
 ) -> None:
     """Test init command with install flag."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     init(workspace=workspace, reinit=False, install=True, yes=True)
@@ -130,9 +130,9 @@ def test_init_with_install(
     assert len(pip_calls) > 0
 
 
-def test_init_reinit_removes_venv(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_init_reinit_removes_venv(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
     """Test init command with reinit flag removes existing venv."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     workspace.venv_dir.mkdir(parents=True, exist_ok=True)
     _ = (workspace.venv_dir / "marker.txt").write_text("existing")
 
@@ -144,12 +144,12 @@ def test_init_reinit_removes_venv(tmp_workspace: Path, mock_subprocess: MagicMoc
 
 
 def test_init_existing_venv_no_reinit(
-    tmp_workspace: Path, mock_subprocess: MagicMock, caplog: pytest.LogCaptureFixture
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test init command preserves existing venv when reinit is False."""
     import logging
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     # Venv already exists from fixture
 
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
@@ -160,12 +160,12 @@ def test_init_existing_venv_no_reinit(
     assert "Using existing" in caplog.text
 
 
-def test_init_with_requirements_file(tmp_workspace: Path, mock_subprocess: MagicMock) -> None:
+def test_init_with_requirements_file(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
     """Test init command installs requirements from requirements.txt."""
     # Create a requirements file
-    _ = (tmp_workspace / "requirements-dev.txt").write_text("pytest\\nblack\\n")
+    _ = (tmp_workspace_dir / "requirements-dev.txt").write_text("pytest\\nblack\\n")
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
 
     init(workspace=workspace, reinit=False, install=True, yes=True)

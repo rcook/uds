@@ -9,7 +9,7 @@ from bygge.cmd.info_cmd import info
 from bygge.workspace import Workspace
 
 
-def test_info_command(tmp_workspace: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_info_command(tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]) -> None:
     """Test info command displays environment information."""
 
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
@@ -30,7 +30,7 @@ def test_info_command(tmp_workspace: Path, capsys: pytest.CaptureFixture[str]) -
 
 
 def test_info_command_paths_already_resolved(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when executable paths are already resolved (no symlinks)."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
@@ -45,7 +45,7 @@ def test_info_command_paths_already_resolved(
 
 
 def test_info_command_running_as_script(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when running as a Python script."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
@@ -58,7 +58,7 @@ def test_info_command_running_as_script(
     assert "Running as Python script" in captured.out
 
 
-def test_info_command_not_in_venv(tmp_workspace: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_info_command_not_in_venv(tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]) -> None:
     """Test info when NOT running from project venv."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
 
@@ -71,7 +71,7 @@ def test_info_command_not_in_venv(tmp_workspace: Path, capsys: pytest.CaptureFix
 
 
 def test_info_command_with_symlinks(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when paths have symlinks that need resolving."""
     import os
@@ -79,7 +79,7 @@ def test_info_command_with_symlinks(
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
 
     # Create actual symlinks to test resolution
-    bin_dir = tmp_workspace / "bin"
+    bin_dir = tmp_workspace_dir / "bin"
     bin_dir.mkdir(parents=True, exist_ok=True)
     target_bygge = bin_dir / "bygge-real"
     target_bygge.write_text("#!/bin/sh\n")
@@ -97,7 +97,7 @@ def test_info_command_with_symlinks(
 
 
 def test_info_command_bygge_from_project_venv(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when bygge binary is from project venv."""
     workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)

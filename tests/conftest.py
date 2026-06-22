@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from bygge.constants import IS_WINDOWS
+from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
 
 
 @pytest.fixture
@@ -18,13 +18,13 @@ def mock_subprocess(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
 
 
 @pytest.fixture
-def tmp_workspace(tmp_path: Path) -> Path:
+def tmp_workspace_dir(tmp_path: Path) -> Path:
     """Create a minimal workspace with .bygge.toml."""
     workspace_dir = tmp_path / "workspace"
     workspace_dir.mkdir()
 
     # Create .bygge.toml
-    bygge_toml = workspace_dir / ".bygge.toml"
+    bygge_toml = workspace_dir / DOT_FILE_NAME
     _ = bygge_toml.write_text(
         "[workspace]\n"
         + 'package_root_dir = "packages"\n'
@@ -57,9 +57,9 @@ def tmp_workspace(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def tmp_package(tmp_workspace: Path) -> Path:
+def tmp_package(tmp_workspace_dir: Path) -> Path:
     """Create a minimal package with pyproject.toml inside tmp_workspace."""
-    pkg_dir = tmp_workspace / "packages" / "test_pkg"
+    pkg_dir = tmp_workspace_dir / "packages" / "test_pkg"
     pkg_dir.mkdir(parents=True)
 
     src_dir = pkg_dir / "src" / "test_pkg"

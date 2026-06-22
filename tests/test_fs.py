@@ -5,23 +5,23 @@ from collections.abc import Iterable
 from pathlib import Path
 from unittest.mock import patch
 
-from bygge.constants import IS_WINDOWS
+from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
 from bygge.util import UNSET, Unset
 from bygge.util.fs import find_dot_file, hackily_canonicalize, walk_dir
 
 
 def test_find_dot_file_in_current_dir(tmp_path: Path) -> None:
-    dot_file = tmp_path / ".bygge.toml"
-    _ = dot_file.write_text("")
-    assert find_dot_file(tmp_path) == dot_file
+    dot_path = tmp_path / DOT_FILE_NAME
+    dot_path.touch()
+    assert find_dot_file(tmp_path) == dot_path
 
 
 def test_find_dot_file_in_parent(tmp_path: Path) -> None:
-    dot_file = tmp_path / ".bygge.toml"
-    _ = dot_file.write_text("")
+    dot_path = tmp_path / DOT_FILE_NAME
+    dot_path.touch()
     subdir = tmp_path / "sub" / "dir"
     subdir.mkdir(parents=True)
-    assert find_dot_file(subdir) == dot_file
+    assert find_dot_file(subdir) == dot_path
 
 
 def test_find_dot_file_not_found(tmp_path: Path) -> None:

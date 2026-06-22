@@ -34,9 +34,9 @@ def test_test_dirs_mixin_without_pytest(tmp_package: Path) -> None:
     assert test_dirs is None
 
 
-def test_test_dirs_mixin_no_testpaths(tmp_workspace: Path) -> None:
+def test_test_dirs_mixin_no_testpaths(tmp_workspace_dir: Path) -> None:
     """Test TestDirsMixin.fetch_test_dirs returns None when testpaths is missing."""
-    pkg_dir = tmp_workspace / "packages" / "no_testpaths"
+    pkg_dir = tmp_workspace_dir / "packages" / "no_testpaths"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"
@@ -72,9 +72,9 @@ def test_magic_sources_finds_src_dir(tmp_package: Path) -> None:
     assert source_dirs[0].name == "src"
 
 
-def test_magic_sources_no_src_dir(tmp_workspace: Path) -> None:
+def test_magic_sources_no_src_dir(tmp_workspace_dir: Path) -> None:
     """Test MagicSources.fetch_source_dirs returns None when src dir doesn't exist."""
-    pkg_dir = tmp_workspace / "packages" / "no_src"
+    pkg_dir = tmp_workspace_dir / "packages" / "no_src"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"

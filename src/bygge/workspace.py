@@ -19,18 +19,22 @@ class Workspace:
     optional_deps: list[str]
     coverage_baseline: int | None
 
-    @classmethod
-    def find(cls: type[Self], cwd: Path, workspace_dir: Path | None) -> Self:
+    @staticmethod
+    def probe(cwd: Path, workspace_dir: Path | None) -> Path | None:
         if workspace_dir is None:
             dot_path = find_dot_file(cwd)
             if dot_path is None:
-                raise ByggeError(f"Could not find {DOT_FILE_NAME} in {cwd} or any of its parents")
-            workspace_dir = dot_path.parent
+                return None
         else:
             dot_path = workspace_dir / DOT_FILE_NAME
             if not dot_path.is_file():
-                raise ByggeError(f"Configuration file {dot_path} not found")
+                return None
 
+        return dot_path.parent
+
+    @classmethod
+    def open(cls: type[Self], workspace_dir: Path, cwd: Path | None = None) -> Self:
+        dot_path = workspace_dir / DOT_FILE_NAME
         dot_config = DotConfig.load(workspace_dir=workspace_dir, dot_path=dot_path)
         # package_root_dir can be equal to or a child of workspace_dir
         assert (
@@ -39,7 +43,7 @@ class Workspace:
         )
 
         return cls(
-            cwd=cwd,
+            cwd=cwd or workspace_dir,
             workspace_dir=workspace_dir,
             package_root_dir=dot_config.package_root_dir,
             venv_dir=dot_config.venv_dir,

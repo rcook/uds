@@ -37,9 +37,9 @@ def mock_plugins() -> Plugins:
 
 
 @pytest.fixture
-def mock_workspace(tmp_workspace: Path) -> Workspace:
+def mock_workspace(tmp_workspace_dir: Path) -> Workspace:
     """Create a workspace for testing."""
-    return Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    return Workspace.open(tmp_workspace_dir)
 
 
 @pytest.fixture

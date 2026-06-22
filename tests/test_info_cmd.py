@@ -11,8 +11,8 @@ from bygge.constants import IS_WINDOWS
 from bygge.workspace import Workspace
 
 
-def test_info_command(tmp_workspace: Path, capsys: CaptureFixture[str]) -> None:
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+def test_info_command(tmp_workspace_dir: Path, capsys: CaptureFixture[str]) -> None:
+    workspace = Workspace.open(tmp_workspace_dir)
 
     info(workspace=workspace)
 
@@ -30,7 +30,7 @@ def test_info_command(tmp_workspace: Path, capsys: CaptureFixture[str]) -> None:
 
 
 def test_info_command_paths_already_resolved(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when executable paths are already resolved (no symlinks)."""
 
@@ -40,7 +40,7 @@ def test_info_command_paths_already_resolved(
         else:
             return "/path/to/python", "/path/to/bygge"
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     executable, bygge_ = get_fake_paths()
 
@@ -55,10 +55,10 @@ def test_info_command_paths_already_resolved(
 
 
 def test_info_command_running_as_script(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when running as a Python script."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # Mock sys.argv to look like a Python script
     with patch("sys.argv", ["/path/to/main.py"]):
@@ -68,9 +68,11 @@ def test_info_command_running_as_script(
     assert "Running as Python script" in captured.out
 
 
-def test_info_command_not_in_venv(tmp_workspace: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_info_command_not_in_venv(
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Test info when NOT running from project venv."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # Mock sys.prefix to be different from workspace venv
     with patch("sys.prefix", "/usr/local"):
@@ -81,15 +83,15 @@ def test_info_command_not_in_venv(tmp_workspace: Path, capsys: pytest.CaptureFix
 
 
 @pytest.mark.skipif(IS_WINDOWS, reason="requires user-mode symlinks - skipping on Windows")
-def test_info_command_with_symlinks(tmp_workspace: Path, capsys: CaptureFixture[str]) -> None:
+def test_info_command_with_symlinks(tmp_workspace_dir: Path, capsys: CaptureFixture[str]) -> None:
     """Test info when paths have symlinks that need resolving."""
 
     import os
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # Create actual symlinks to test resolution
-    bin_dir = tmp_workspace / "bin"
+    bin_dir = tmp_workspace_dir / "bin"
     bin_dir.mkdir(parents=True, exist_ok=True)
     target_bygge = bin_dir / "bygge-real"
     _ = target_bygge.write_text("#!/bin/sh\n")
@@ -107,10 +109,10 @@ def test_info_command_with_symlinks(tmp_workspace: Path, capsys: CaptureFixture[
 
 
 def test_info_command_bygge_from_project_venv(
-    tmp_workspace: Path, capsys: pytest.CaptureFixture[str]
+    tmp_workspace_dir: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test info when bygge binary is from project venv."""
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     # Mock sys.argv to point to a binary inside the venv
     venv_bin = workspace.venv_dir / "bin" / "bygge"

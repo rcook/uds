@@ -68,10 +68,10 @@ def test_hatchling_missing_packages(tmp_package: Path, caplog: pytest.LogCapture
     assert "defines no source files" in caplog.text
 
 
-def test_setuptools_fetch_source_dirs(tmp_workspace: Path) -> None:
+def test_setuptools_fetch_source_dirs(tmp_workspace_dir: Path) -> None:
     """Test Setuptools plugin fetches source directories."""
     plugin = Setuptools()
-    pkg_dir = tmp_workspace / "packages" / "setuptools_pkg"
+    pkg_dir = tmp_workspace_dir / "packages" / "setuptools_pkg"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"
@@ -118,11 +118,11 @@ def test_basedpyright_is_installed(tmp_package: Path) -> None:
 
 
 def test_basedpyright_run_type_check_success(
-    tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Basedpyright run_type_check with success."""
     plugin = Basedpyright()
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -135,11 +135,11 @@ def test_basedpyright_run_type_check_success(
 
 
 def test_basedpyright_run_type_check_failure(
-    tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Basedpyright run_type_check with failure."""
     plugin = Basedpyright()
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -163,11 +163,11 @@ def test_pytest_is_installed(tmp_package: Path) -> None:
 
 
 def test_pytest_run_test_success(
-    tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Pytest run_test with success."""
     plugin = Pytest()
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -180,11 +180,11 @@ def test_pytest_run_test_success(
 
 
 def test_pytest_run_test_failure(
-    tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test Pytest run_test with failure."""
     plugin = Pytest()
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -208,11 +208,11 @@ def test_pytest_cov_is_installed(tmp_package: Path) -> None:
 
 
 def test_pytest_cov_run_coverage_success(
-    tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test PytestCov run_coverage with success."""
     plugin = PytestCov()
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
     payload = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],
@@ -229,11 +229,11 @@ def test_pytest_cov_run_coverage_success(
 
 
 def test_pytest_cov_run_coverage_no_baseline(
-    tmp_workspace: Path, tmp_package: Path, mock_subprocess: MagicMock
+    tmp_workspace_dir: Path, tmp_package: Path, mock_subprocess: MagicMock
 ) -> None:
     """Test PytestCov run_coverage without baseline."""
     _ = PytestCov()
-    _ = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    _ = Workspace.open(tmp_workspace_dir)
     _ = Payload(
         source_dirs=[tmp_package / "src" / "test_pkg"],
         test_dirs=[tmp_package / "tests"],

@@ -18,10 +18,10 @@ from bygge.plugins import (
 from bygge.util import load_toml
 
 
-def test_package_info_get_test_dirs_none_found(tmp_workspace: Path) -> None:
+def test_package_info_get_test_dirs_none_found(tmp_workspace_dir: Path) -> None:
     """Test PackageInfo._get_test_dirs returns None when no tools find test dirs."""
     # Create a package without pytest in dependencies and no testpaths config
-    pkg_dir = tmp_workspace / "packages" / "no_tests"
+    pkg_dir = tmp_workspace_dir / "packages" / "no_tests"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"

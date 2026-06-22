@@ -13,14 +13,14 @@ from bygge.workspace import Workspace
 _RESOURCE_DIR: Path = Path(__file__).parent / "resources"
 
 
-def test_recode_fix(tmp_workspace: Path) -> None:
+def test_recode_fix(tmp_workspace_dir: Path) -> None:
     @dataclass(frozen=True, slots=True)
     class FileInfo:
         input_bytes: bytes
         output_bytes: bytes
         test_path: Path
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     files: list[FileInfo] = []
     for i in range(3):
@@ -29,7 +29,7 @@ def test_recode_fix(tmp_workspace: Path) -> None:
         output_file_name = f"example{i}-output.txt"
         output_path = _RESOURCE_DIR / output_file_name
 
-        test_path = tmp_workspace / f"{input_file_name}.py"
+        test_path = tmp_workspace_dir / f"{input_file_name}.py"
         _ = shutil.copyfile(input_path, test_path)
         files.append(
             FileInfo(
@@ -50,14 +50,14 @@ def test_recode_fix(tmp_workspace: Path) -> None:
     assert file2.test_path.read_bytes() == file2.output_bytes
 
 
-def test_recode_check(tmp_workspace: Path) -> None:
+def test_recode_check(tmp_workspace_dir: Path) -> None:
     @dataclass(frozen=True, slots=True)
     class FileInfo:
         input_bytes: bytes
         output_bytes: bytes
         test_path: Path
 
-    workspace = Workspace.find(cwd=tmp_workspace, workspace_dir=None)
+    workspace = Workspace.open(tmp_workspace_dir)
 
     files: list[FileInfo] = []
     for i in range(3):
@@ -66,7 +66,7 @@ def test_recode_check(tmp_workspace: Path) -> None:
         output_file_name = f"example{i}-output.txt"
         output_path = _RESOURCE_DIR / output_file_name
 
-        test_path = tmp_workspace / f"{input_file_name}.py"
+        test_path = tmp_workspace_dir / f"{input_file_name}.py"
         _ = shutil.copyfile(input_path, test_path)
         files.append(
             FileInfo(

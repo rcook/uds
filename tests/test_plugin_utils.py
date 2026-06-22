@@ -58,9 +58,9 @@ def test_check_requirements_missing_required_dep(tmp_package: Path) -> None:
     assert not check_requirements(input=input, blob=blob, required_deps=["pytest"])
 
 
-def test_fetch_pytest_test_dirs_no_testpaths(tmp_workspace: Path) -> None:
+def test_fetch_pytest_test_dirs_no_testpaths(tmp_workspace_dir: Path) -> None:
     """Test fetch_pytest_test_dirs returns None when testpaths is missing."""
-    pkg_dir = tmp_workspace / "packages" / "no_testpaths_pkg"
+    pkg_dir = tmp_workspace_dir / "packages" / "no_testpaths_pkg"
     pkg_dir.mkdir(parents=True)
 
     pyproject_path = pkg_dir / "pyproject.toml"
