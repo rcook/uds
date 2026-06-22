@@ -93,5 +93,5 @@ def shell_join(cmd: list[str]) -> str:  # pragma: nocover
 
 def chmod_plus_x(path: Path) -> None:
     st = path.stat()
-    mode = st.st_mode | stat.S_IEXEC
+    mode = st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     path.chmod(mode)

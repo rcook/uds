@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
 from bygge.util import UNSET, Unset
-from bygge.util.fs import find_dot_file, hackily_canonicalize, walk_dir
+from bygge.util.fs import chmod_plus_x, find_dot_file, hackily_canonicalize, walk_dir
 
 
 def test_find_dot_file_in_current_dir(tmp_path: Path) -> None:
@@ -80,6 +80,29 @@ def test_walk_dir_consecutive_ignored_dirs(tmp_path: Path) -> None:
 
     # Only src/file3.txt should be found; .git and .venv are ignored by default
     assert sorted(paths) == ["src/file3.txt"]
+
+
+def test_chmod_plus_x_sets_all_execute_bits(tmp_path: Path) -> None:
+    """Test that chmod_plus_x sets execute bits for user, group, and other."""
+    import stat
+
+    test_file = tmp_path / "test_script.sh"
+    _ = test_file.write_text("#!/bin/bash\necho hello\n")
+
+    # Initially, file should not be executable
+    initial_mode = test_file.stat().st_mode
+    assert not (initial_mode & stat.S_IXUSR)
+    assert not (initial_mode & stat.S_IXGRP)
+    assert not (initial_mode & stat.S_IXOTH)
+
+    # Apply chmod_plus_x
+    chmod_plus_x(test_file)
+
+    # Now all three execute bits should be set
+    final_mode = test_file.stat().st_mode
+    assert final_mode & stat.S_IXUSR  # Owner execute
+    assert final_mode & stat.S_IXGRP  # Group execute
+    assert final_mode & stat.S_IXOTH  # Other execute
 
 
 def test_hackily_canonicalize(tmp_path: Path) -> None:
