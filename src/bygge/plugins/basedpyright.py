@@ -38,9 +38,9 @@ class Basedpyright(TestDirsMixin):
             case 1:
                 # basedpyright completed successfully: some type errors were detected
                 return PluginResult.FAILED
-            case 3:  # pragma: nocover
+            case 3:  # pragma: no cover
                 # basedpyright reported bad configuration etc.
                 return PluginResult.PLUGIN_ERROR
-            case _:  # pragma: nocover
+            case _:  # pragma: no cover
                 proc.check_returncode()
                 raise AssertionError()

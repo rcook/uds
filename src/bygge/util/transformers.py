@@ -35,10 +35,10 @@ class RewriteNonAsciiStrings(CSTTransformer):
     ) -> SimpleString:
         try:
             decoded = original_node.evaluated_value
-        except Exception:  # pragma: nocover
+        except Exception:  # pragma: no cover
             return updated_node
 
-        if not isinstance(decoded, str):  # pragma: nocover
+        if not isinstance(decoded, str):  # pragma: no cover
             return updated_node
 
         if all(ord(c) < 128 for c in decoded):

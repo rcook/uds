@@ -11,5 +11,5 @@ def dead(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:
     result = runner.run_dead_code(fix=fix, args=args)
     if not result.ran:
         raise ByggeError("No dead code plugin found")
-    if not result.succeeded:  # pragma: nocover
+    if not result.succeeded:  # pragma: no cover
         raise ByggeError("Dead code analysis failed")

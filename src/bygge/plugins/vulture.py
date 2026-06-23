@@ -36,13 +36,13 @@ class Vulture:
         match proc.returncode:
             case 0:
                 return PluginResult.PASSED
-            case 1:  # pragma: nocover
+            case 1:  # pragma: no cover
                 return PluginResult.FAILED
-            case 3:  # pragma: nocover
+            case 3:  # pragma: no cover
                 # Exit code 3: dead code found
                 # In fix mode (--make-whitelist), this is success (whitelist generated)
                 # In check mode, this is failure (dead code detected)
                 return PluginResult.PASSED if fix else PluginResult.FAILED
-            case _:  # pragma: nocover
+            case _:  # pragma: no cover
                 proc.check_returncode()
                 raise AssertionError()

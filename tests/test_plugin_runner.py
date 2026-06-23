@@ -222,7 +222,7 @@ def test_run_plugins_mixed_results() -> None:
                 return PluginResult.PASSED
             case 2:
                 return PluginResult.FAILED
-            case _:  # pragma: nocover
+            case _:  # pragma: no cover
                 raise AssertionError()
 
     result = PluginRunner.run_plugins(plugins=plugins, f=mixed_fn, label="test")

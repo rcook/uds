@@ -12,8 +12,8 @@ class RuffRunMixin:
         match proc.returncode:
             case 0:
                 return PluginResult.PASSED
-            case 1:  # pragma: nocover
+            case 1:  # pragma: no cover
                 return PluginResult.FAILED
-            case _:  # pragma: nocover
+            case _:  # pragma: no cover
                 proc.check_returncode()
                 raise AssertionError()

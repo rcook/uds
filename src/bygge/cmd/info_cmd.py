@@ -18,7 +18,7 @@ def info(workspace: Workspace) -> None:
     click.echo()
 
     # Python executable
-    if info.executable_linked:  # pragma: nocover
+    if info.executable_linked:  # pragma: no cover
         click.echo(f"Python executable: {info.executable_unresolved}")
         click.echo(f"  (resolves to: {info.executable_resolved})")
     else:
@@ -63,7 +63,7 @@ def info(workspace: Workspace) -> None:
 
     click.echo("\nProject information:")
     runner = PluginRunner(workspace=workspace, plugins=PLUGINS)
-    for info in runner.infos:  # pragma: nocover
+    for info in runner.infos:  # pragma: no cover
         click.echo(f"  {info.name}")
         if info.test is not None:
             click.echo(f"    Test plugin: {type(info.test.plugin).__name__}")

@@ -11,5 +11,5 @@ def fmt(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:
     result = runner.run_format(fix=fix, args=args)
     if not result.ran:
         raise ByggeError("No format plugin found")
-    if not result.succeeded:  # pragma: nocover
+    if not result.succeeded:  # pragma: no cover
         raise ByggeError("Format run failed")

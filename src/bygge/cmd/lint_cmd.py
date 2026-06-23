@@ -11,5 +11,5 @@ def lint(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:
     result = runner.run_lint(fix=fix, args=args)
     if not result.ran:
         raise ByggeError("No lint plugin found")
-    if not result.succeeded:  # pragma: nocover
+    if not result.succeeded:  # pragma: no cover
         raise ByggeError("Lint run failed")

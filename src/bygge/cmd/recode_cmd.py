@@ -48,7 +48,7 @@ def _transform_file(
     s = path.read_text(encoding="utf-8")
     try:
         module = libcst.parse_module(s)
-    except Exception as e:  # pragma: nocover
+    except Exception as e:  # pragma: no cover
         warning(f"Could not parse {rel_path} ({e})")
         return False
 
@@ -58,7 +58,7 @@ def _transform_file(
         if fix:
             _ = path.write_text(output, encoding="utf-8")
             info(f"Fixed non-ASCII characters in {rel_path}")
-        else:  # pragma: nocover
+        else:  # pragma: no cover
             info(f"Found non-ASCII characters in {rel_path}")
         return True
     else:

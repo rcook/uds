@@ -20,7 +20,7 @@ def hook(workspace: Workspace, dir: Path | None, create_pre_commit: bool) -> Non
 
     try:
         repo_path = local_dir.relative_to(workspace.workspace_dir).as_posix()
-    except ValueError as e:  # pragma: nocover
+    except ValueError as e:  # pragma: no cover
         raise ByggeError(f"{local_dir} is not in subpath of {workspace.workspace_dir}") from e
 
     _ = run_subprocess(

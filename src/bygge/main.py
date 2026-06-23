@@ -61,7 +61,7 @@ def _log_executable_info() -> None:
     info = ExecutableInfo.make()
 
     # Log both the symlink and its target if they differ
-    if info.executable_linked:  # pragma: nocover
+    if info.executable_linked:  # pragma: no cover
         logger.debug(
             f"Python executable: {info.executable_unresolved} -> {info.executable_resolved}"
         )
@@ -111,7 +111,7 @@ def _get_delegate_venv_bygge_path(workspace: Workspace) -> Path | None:
     venv_bygge_path = (
         venv_dir / "Scripts" / "bygge.exe" if IS_WINDOWS else venv_dir / "bin" / "bygge"
     )
-    if venv_bygge_path.is_file():  # pragma: nocover
+    if venv_bygge_path.is_file():  # pragma: no cover
         return venv_bygge_path
 
     warning(
@@ -280,7 +280,7 @@ def main(
 
 @main.command("new", help=f"Create a new {DOT_FILE_NAME} file")
 @pass_obj
-def new_cmd(workspace_dir: Path) -> None:  # pragma: nocover
+def new_cmd(workspace_dir: Path) -> None:  # pragma: no cover
     new(workspace_dir=workspace_dir)
 
 

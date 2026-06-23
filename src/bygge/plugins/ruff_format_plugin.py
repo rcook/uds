@@ -19,7 +19,7 @@ class RuffFormatPlugin(RuffRunMixin):
         args: tuple[str, ...],
     ) -> PluginResult:
         result0 = self._run_format_inner(workspace=workspace, payload=payload, fix=fix, args=args)
-        if result0 is not PluginResult.PASSED:  # pragma: nocover
+        if result0 is not PluginResult.PASSED:  # pragma: no cover
             return result0
 
         result1 = self._run_isort_inner(workspace=workspace, payload=payload, fix=fix, args=args)

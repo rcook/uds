@@ -39,7 +39,7 @@ def is_ignored_dir_name(name: str, globs: Iterable[str] | None | Unset = UNSET) 
             globs0 = []
         case Unset():
             globs0 = IGNORE_DIR_GLOBS
-        case _:  # pragma: nocover  # pyright: ignore[reportUnnecessaryComparison]
+        case _:  # pragma: no cover  # pyright: ignore[reportUnnecessaryComparison]
             assert_never(globs0)
     return any(fnmatch(name, glob) for glob in globs0)
 
@@ -56,7 +56,7 @@ def walk_dir(
         yield dir, file_names
 
 
-def hackily_canonicalize(s: str) -> Path:  # pragma: nocover
+def hackily_canonicalize(s: str) -> Path:  # pragma: no cover
     p = Path(s)
     if p.is_file():
         return p
@@ -84,7 +84,7 @@ def hackily_canonicalize(s: str) -> Path:  # pragma: nocover
     return p
 
 
-def shell_join(cmd: list[str]) -> str:  # pragma: nocover
+def shell_join(cmd: list[str]) -> str:  # pragma: no cover
     if IS_WINDOWS:
         return mslex.join(split_command=cmd)
     else:
