@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .assert_never import assert_never
-from .cli import ARGS_ARG, CWD_OPT, WORKSPACE_DIR_OPT, YES_OPT, ClickDecorator
+from .cli import ARGS_ARG, CWD_OPT, OUTPUT_DIR_OPT, WORKSPACE_DIR_OPT, YES_OPT, ClickDecorator
 from .colour_formatter import ColourFormatter
 from .executable_info import ExecutableInfo
 from .fs import find_dot_file, walk_dir
@@ -24,6 +24,7 @@ from .unset import UNSET, Unset
 __all__ = [
     "ARGS_ARG",
     "CWD_OPT",
+    "OUTPUT_DIR_OPT",
     "UNSET",
     "WORKSPACE_DIR_OPT",
     "YES_OPT",

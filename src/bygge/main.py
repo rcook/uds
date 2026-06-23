@@ -29,18 +29,21 @@ from bygge.cmd import (
     hook,
     info,
     init,
+    link,
     lint,
     new,
     recode,
     test,
     type_check,
     unhook,
+    unlink,
 )
 from bygge.constants import DOT_FILE_NAME, IS_WINDOWS
 from bygge.run import run_subprocess
 from bygge.util import (
     ARGS_ARG,
     CWD_OPT,
+    OUTPUT_DIR_OPT,
     WORKSPACE_DIR_OPT,
     YES_OPT,
     ColourFormatter,
@@ -385,6 +388,23 @@ def hook_cmd(
 @pass_obj
 def unhook_cmd(workspace: Workspace) -> None:  # pragma: no cover
     unhook(workspace=workspace)
+
+
+@main.command("link", help="Create symlinks for project scripts")
+@pass_obj
+@OUTPUT_DIR_OPT
+@option("--force", is_flag=True, default=False, help="Overwrite existing links that differ")
+def link_cmd(
+    workspace: Workspace, output_dir: Path | None, force: bool
+) -> None:  # pragma: no cover
+    link(workspace=workspace, output_dir=output_dir, force=force)
+
+
+@main.command("unlink", help="Remove symlinks for project scripts")
+@pass_obj
+@OUTPUT_DIR_OPT
+def unlink_cmd(workspace: Workspace, output_dir: Path | None) -> None:  # pragma: no cover
+    unlink(workspace=workspace, output_dir=output_dir)
 
 
 @main.command(

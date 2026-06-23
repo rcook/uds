@@ -53,6 +53,13 @@ FIX_CHECK_OPT: ClickDecorator = option(
     help="Fix errors or check for errors only",
 )
 
+OUTPUT_DIR_OPT: ClickDecorator = option(
+    "--output-dir",
+    type=click.Path(file_okay=False, dir_okay=True, resolve_path=True, path_type=Path),
+    default=None,
+    help="Directory for script links (default: ~/.local/bin on POSIX, required on Windows)",
+)
+
 
 UNKNOWN_ARGS_CTX: dict[str, bool] = {"ignore_unknown_options": True, "allow_extra_args": True}
 
