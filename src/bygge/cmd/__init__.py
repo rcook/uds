@@ -3,6 +3,7 @@ from __future__ import annotations
 from .check_cmd import check
 from .commit_unchecked_cmd import commit_unchecked
 from .coverage_cmd import coverage
+from .dead_cmd import dead
 from .fmt_cmd import fmt
 from .hook_cmd import hook
 from .info_cmd import info
@@ -20,6 +21,7 @@ __all__ = [
     "check",
     "commit_unchecked",
     "coverage",
+    "dead",
     "fmt",
     "hook",
     "info",

@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from bygge.contracts import (
     CoveragePlugin,
+    DeadCodePlugin,
     FormatPlugin,
     LintPlugin,
     SourceDirPlugin,
@@ -22,3 +23,4 @@ class Plugins:
     type_check_plugins: list[TypeCheckPlugin] = field(default_factory=list)
     format_plugins: list[FormatPlugin] = field(default_factory=list)
     lint_plugins: list[LintPlugin] = field(default_factory=list)
+    dead_code_plugins: list[DeadCodePlugin] = field(default_factory=list)

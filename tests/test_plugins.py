@@ -12,6 +12,7 @@ from bygge.plugins.hatchling import Hatchling
 from bygge.plugins.pytest import Pytest
 from bygge.plugins.pytest_cov import PytestCov
 from bygge.plugins.setuptools import Setuptools
+from bygge.plugins.vulture import Vulture
 from bygge.util import load_toml
 from bygge.workspace import Workspace
 
@@ -249,3 +250,73 @@ def test_pytest_cov_run_coverage_no_baseline(
     )
 
     mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+
+def test_vulture_is_installed(tmp_package: Path) -> None:
+    """Test Vulture plugin detects installation."""
+    plugin = Vulture()
+    pyproject_path = tmp_package / "pyproject.toml"
+
+    # Add vulture to the project's pyproject.toml optional dependencies
+    content = pyproject_path.read_text()
+    content = content.replace(
+        'dev = ["pytest", "pytest-cov", "basedpyright", "ruff"]',
+        'dev = ["pytest", "pytest-cov", "basedpyright", "ruff", "vulture"]',
+    )
+    _ = pyproject_path.write_text(content)
+
+    input = Input(
+        pyproject_path=pyproject_path, optional_deps=["dev"], blob=load_toml(pyproject_path)
+    )
+    blob = load_toml(pyproject_path)
+
+    is_installed = plugin.is_installed(input=input, blob=blob)
+    assert is_installed is True
+
+
+def test_vulture_run_dead_code_success(
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test Vulture run_dead_code with no dead code (success)."""
+    plugin = Vulture()
+    payload = Payload(
+        source_dirs=[tmp_package / "src" / "test_pkg"],
+        test_dirs=[tmp_package / "tests"],
+    )
+
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    result = plugin.run_dead_code(workspace=tmp_workspace, payload=payload, fix=False, args=())
+    assert result is PluginResult.PASSED
+
+
+def test_vulture_run_dead_code_check_mode_with_dead_code(
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test Vulture run_dead_code in check mode with dead code found."""
+    plugin = Vulture()
+    payload = Payload(
+        source_dirs=[tmp_package / "src" / "test_pkg"],
+        test_dirs=[tmp_package / "tests"],
+    )
+
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=3, stdout="", stderr="")
+
+    result = plugin.run_dead_code(workspace=tmp_workspace, payload=payload, fix=False, args=())
+    assert result is PluginResult.FAILED
+
+
+def test_vulture_run_dead_code_fix_mode_with_dead_code(
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test Vulture run_dead_code in fix mode with dead code found."""
+    plugin = Vulture()
+    payload = Payload(
+        source_dirs=[tmp_package / "src" / "test_pkg"],
+        test_dirs=[tmp_package / "tests"],
+    )
+
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=3, stdout="", stderr="")
+
+    result = plugin.run_dead_code(workspace=tmp_workspace, payload=payload, fix=True, args=())
+    assert result is PluginResult.PASSED

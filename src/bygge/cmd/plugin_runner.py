@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bygge.contracts import (
     CoveragePlugin,
+    DeadCodePlugin,
     FormatPlugin,
     Input,
     LintPlugin,
@@ -48,6 +49,7 @@ class PluginRunner:
         type_check_plugins: dict[TypeCheckPlugin, PayloadBuilder] = {}
         format_plugins: dict[FormatPlugin, PayloadBuilder] = {}
         lint_plugins: dict[LintPlugin, PayloadBuilder] = {}
+        dead_code_plugins: dict[DeadCodePlugin, PayloadBuilder] = {}
         for meta in target_info.ordered_metas:
             input = Input(
                 pyproject_path=meta.pyproject_path,
@@ -74,6 +76,9 @@ class PluginRunner:
             if info.lint is not None:
                 acc = lint_plugins.setdefault(info.lint.plugin, PayloadBuilder())
                 acc.extend(info.lint.payload)
+            if info.dead_code is not None:
+                acc = dead_code_plugins.setdefault(info.dead_code.plugin, PayloadBuilder())
+                acc.extend(info.dead_code.payload)
 
         self.workspace: Workspace = workspace
         self._infos: list[PackageInfo] = infos
@@ -82,6 +87,7 @@ class PluginRunner:
         self._type_check_plugins: dict[TypeCheckPlugin, Payload] = build(type_check_plugins)
         self._format_plugins: dict[FormatPlugin, Payload] = build(format_plugins)
         self._lint_plugins: dict[LintPlugin, Payload] = build(lint_plugins)
+        self._dead_code_plugins: dict[DeadCodePlugin, Payload] = build(dead_code_plugins)
 
     @property
     def infos(self) -> list[PackageInfo]:
@@ -133,6 +139,15 @@ class PluginRunner:
                 workspace=self.workspace, payload=payload, fix=fix, args=args
             ),
             label="lint",
+        )
+
+    def run_dead_code(self, fix: bool, args: tuple[str, ...]) -> RunResult:
+        return self.__class__.run_plugins(
+            plugins=self._dead_code_plugins,
+            f=lambda plugin, payload: plugin.run_dead_code(
+                workspace=self.workspace, payload=payload, fix=fix, args=args
+            ),
+            label="dead code analysis",
         )
 
     @staticmethod

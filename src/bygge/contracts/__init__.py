@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .coverage_plugin import CoveragePlugin
+from .dead_code_plugin import DeadCodePlugin
 from .format_plugin import FormatPlugin
 from .input import Input
 from .lint_plugin import LintPlugin
@@ -14,6 +15,7 @@ from .type_check_plugin import TypeCheckPlugin
 
 __all__ = [
     "CoveragePlugin",
+    "DeadCodePlugin",
     "FormatPlugin",
     "Input",
     "LintPlugin",

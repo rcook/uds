@@ -12,6 +12,7 @@ from bygge.plugins import (
     RuffCheckPlugin,
     RuffFormatPlugin,
     Setuptools,
+    Vulture,
 )
 
 PLUGINS: Plugins = Plugins(
@@ -22,4 +23,5 @@ PLUGINS: Plugins = Plugins(
     type_check_plugins=[Basedpyright()],
     format_plugins=[RuffFormatPlugin()],
     lint_plugins=[RuffCheckPlugin()],
+    dead_code_plugins=[Vulture()],
 )

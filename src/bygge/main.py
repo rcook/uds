@@ -24,6 +24,7 @@ from bygge.cmd import (
     check,
     commit_unchecked,
     coverage,
+    dead,
     fmt,
     hook,
     info,
@@ -350,6 +351,14 @@ def check_cmd(workspace: Workspace) -> None:  # pragma: no cover
 @ARGS_ARG
 def type_check_cmd(workspace: Workspace, args: tuple[str, ...]) -> None:  # pragma: no cover
     type_check(workspace=workspace, args=args)
+
+
+@main.command("dead", help="Find dead code", context_settings=UNKNOWN_ARGS_CTX)
+@pass_obj
+@FIX_CHECK_OPT
+@ARGS_ARG
+def dead_cmd(workspace: Workspace, fix: bool, args: tuple[str, ...]) -> None:  # pragma: no cover
+    dead(workspace=workspace, fix=fix, args=args)
 
 
 @main.command("hook", help="Install Git pre-commit hook")

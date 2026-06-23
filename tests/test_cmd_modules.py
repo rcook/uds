@@ -10,6 +10,7 @@ from pytest import CaptureFixture, raises
 from bygge import ByggeError
 from bygge.cmd.check_cmd import check
 from bygge.cmd.coverage_cmd import coverage
+from bygge.cmd.dead_cmd import dead
 from bygge.cmd.fmt_cmd import fmt
 from bygge.cmd.lint_cmd import lint
 from bygge.cmd.test_cmd import test as run_test
@@ -210,3 +211,47 @@ def test_type_check_command_success(
 
     # Verify subprocess was called
     assert mock_subprocess.call_count > 0
+
+
+def test_dead_code_command_success(
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test dead code command with success."""
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    # Add vulture to package dependencies
+    pyproject_path = tmp_package / "pyproject.toml"
+    content = pyproject_path.read_text()
+    content = content.replace(
+        'dev = ["pytest", "pytest-cov", "basedpyright", "ruff"]',
+        'dev = ["pytest", "pytest-cov", "basedpyright", "ruff", "vulture"]',
+    )
+    _ = pyproject_path.write_text(content)
+
+    dead(workspace=tmp_workspace, fix=False, args=())
+
+
+def test_dead_code_command_failure(
+    tmp_workspace: Workspace, tmp_package: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test dead code command with failure."""
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=3, stdout="", stderr="")
+
+    # Add vulture to package dependencies
+    pyproject_path = tmp_package / "pyproject.toml"
+    content = pyproject_path.read_text()
+    content = content.replace(
+        'dev = ["pytest", "pytest-cov", "basedpyright", "ruff"]',
+        'dev = ["pytest", "pytest-cov", "basedpyright", "ruff", "vulture"]',
+    )
+    _ = pyproject_path.write_text(content)
+
+    with raises(ByggeError, match="Dead code analysis failed"):
+        dead(workspace=tmp_workspace, fix=False, args=())
+
+
+def test_dead_code_command_no_tool_found(tmp_workspace: Workspace) -> None:
+    """Test dead code command when no plugin is found."""
+    # tmp_workspace doesn't have vulture in dependencies by default
+    with raises(ByggeError, match="No dead code plugin found"):
+        dead(workspace=tmp_workspace, fix=False, args=())

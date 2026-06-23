@@ -7,6 +7,7 @@ from typing import Self
 
 from bygge.contracts import (
     CoveragePlugin,
+    DeadCodePlugin,
     FormatPlugin,
     Input,
     LintPlugin,
@@ -59,6 +60,7 @@ class PackageInfo:
     type_check: PluginInfo[TypeCheckPlugin] | None
     format: PluginInfo[FormatPlugin] | None
     lint: PluginInfo[LintPlugin] | None
+    dead_code: PluginInfo[DeadCodePlugin] | None
 
     @classmethod
     def make(cls: type[Self], plugins: Plugins, input: Input) -> Self | None:
@@ -96,4 +98,7 @@ class PackageInfo:
             ),
             format=PluginInfo[FormatPlugin].find(ctx=ctx, plugins=ctx.plugins.format_plugins),
             lint=PluginInfo[LintPlugin].find(ctx=ctx, plugins=ctx.plugins.lint_plugins),
+            dead_code=PluginInfo[DeadCodePlugin].find(
+                ctx=ctx, plugins=ctx.plugins.dead_code_plugins
+            ),
         )

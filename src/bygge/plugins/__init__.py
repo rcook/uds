@@ -11,6 +11,7 @@ from .pytest_discovery import PytestDiscovery
 from .ruff_check_plugin import RuffCheckPlugin
 from .ruff_format_plugin import RuffFormatPlugin
 from .setuptools import Setuptools
+from .vulture import Vulture
 
 __all__ = [
     "Basedpyright",
@@ -24,4 +25,5 @@ __all__ = [
     "RuffCheckPlugin",
     "RuffFormatPlugin",
     "Setuptools",
+    "Vulture",
 ]

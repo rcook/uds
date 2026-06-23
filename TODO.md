@@ -4,8 +4,6 @@
 
 - Some basic stuff (unused return values etc.) not being detected
 
-## TODO004: Include `vulture` to detect dead code and unused return values
-
 ## TODO007: Command to create symlinks or `.cmd` wrappers for all scripts
 
 ## Done
@@ -23,6 +21,8 @@
 - Add to `check`
 
 ### ~~TODO003: Reduce number of warnings in output~~ (fixed)
+
+### ~~TODO004: Include `vulture` to detect dead code and unused return values~~ (implemented)
 
 ### ~~TODO005: `init` should indicate which Python it's using~~ (no repro)
 
