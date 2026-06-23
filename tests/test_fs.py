@@ -99,10 +99,11 @@ def test_chmod_plus_x_sets_all_execute_bits(tmp_path: Path) -> None:
     chmod_plus_x(test_file)
 
     # Now all three execute bits should be set
-    final_mode = test_file.stat().st_mode
-    assert final_mode & stat.S_IXUSR  # Owner execute
-    assert final_mode & stat.S_IXGRP  # Group execute
-    assert final_mode & stat.S_IXOTH  # Other execute
+    if not IS_WINDOWS:
+        final_mode = test_file.stat().st_mode
+        assert final_mode & stat.S_IXUSR  # Owner execute
+        assert final_mode & stat.S_IXGRP  # Group execute
+        assert final_mode & stat.S_IXOTH  # Other execute
 
 
 def test_hackily_canonicalize(tmp_path: Path) -> None:
