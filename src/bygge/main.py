@@ -248,7 +248,10 @@ def main(
     if workspace_dir is None:
         dot_path = find_dot_file(cwd)
         if dot_path is None:
-            raise ClickException(f"Cannot find workspace at {cwd} or in any of its parents")
+            raise ClickException(
+                f"Cannot find workspace at {cwd} or in any of its parents: "
+                + 'create a workspace with "new" command'
+            )
         workspace_dir = dot_path.parent
     else:
         dot_path = workspace_dir / DOT_FILE_NAME
