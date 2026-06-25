@@ -6,6 +6,10 @@
 
 ## TODO007: Command to create symlinks or `.cmd` wrappers for all scripts
 
+## TODO009: We should respect the pinned Python version during `init`
+
+e.g. `.pydl.json`, `.python-version` etc.
+
 ## Done
 
 ### ~~TODO000: Generalization~~ (fixed)
