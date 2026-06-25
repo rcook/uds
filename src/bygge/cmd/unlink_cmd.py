@@ -28,11 +28,11 @@ def unlink(workspace: Workspace, output_dir: Path | None) -> None:
     for name, target in sorted(scripts.items()):
         if IS_WINDOWS:
             _uninstall_cmd(name=name, target=target, output_dir=resolved_output_dir)
-        else:
+        else:  # pragma: no cover
             _uninstall_symlink(name=name, target=target, output_dir=resolved_output_dir)
 
 
-def _uninstall_symlink(name: str, target: Path, output_dir: Path) -> None:
+def _uninstall_symlink(name: str, target: Path, output_dir: Path) -> None:  # pragma: no cover
     link_path = output_dir / name
 
     if link_path.is_file() or link_path.is_symlink():

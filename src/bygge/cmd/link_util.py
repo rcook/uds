@@ -23,7 +23,7 @@ def resolve_output_dir(output_dir: Path | None) -> Path:
             "The --output-dir option is required on Windows "
             + "(no standard location for user-installed executables exists)"
         )
-    else:
+    else:  # pragma: no cover
         return (Path.home() / ".local" / "bin").resolve()
 
 

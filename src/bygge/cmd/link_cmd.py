@@ -25,11 +25,13 @@ def link(workspace: Workspace, output_dir: Path | None, force: bool) -> None:
     for name, target in sorted(scripts.items()):
         if IS_WINDOWS:
             _install_cmd(name=name, target=target, output_dir=resolved_output_dir, force=force)
-        else:
+        else:  # pragma: no cover
             _install_symlink(name=name, target=target, output_dir=resolved_output_dir, force=force)
 
 
-def _install_symlink(name: str, target: Path, output_dir: Path, force: bool) -> None:
+def _install_symlink(
+    name: str, target: Path, output_dir: Path, force: bool
+) -> None:  # pragma: no cover
     link_path = output_dir / name
 
     if link_path.exists() or link_path.is_symlink():
