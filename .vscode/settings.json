@@ -20,7 +20,8 @@
     "editor.formatOnSave": true,
     "editor.formatOnType": true
   },
-  "basedpyright.analysis.typeCheckingMode": "recommended",
+  "basedpyright.analysis.typeCheckingMode": "strict",
+  "files.eol": "\n",
   "files.exclude": {
     ".venv": true,
     "**/__pycache__": true,
@@ -33,6 +34,7 @@
     "**/dist": true,
     "**/htmlcov": true
   },
+  "python.analysis.autoImportCompletions": true,
   "python.analysis.autoSearchPaths": false,
   "python.analysis.typeCheckingMode": "off",
   "ruff.nativeServer": "on",
