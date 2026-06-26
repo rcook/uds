@@ -32,4 +32,6 @@ REQUIREMENTS_PATTERN: Pattern[str] = re.compile("^(.*)requirements(.*).txt$")
 
 DOT_FILE_NAME: str = ".bygge.toml"
 
+PYTHON_VERSION_FILE_NAME: str = ".python-version"
+
 INIT_FILE_NAME: str = "__init__.py"

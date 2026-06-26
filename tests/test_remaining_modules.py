@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import shutil
+import sys
 from pathlib import Path
 from subprocess import CompletedProcess
 from unittest.mock import MagicMock
 
-from pytest import CaptureFixture, LogCaptureFixture, raises
+from pytest import CaptureFixture, LogCaptureFixture, MonkeyPatch, raises
 
 from bygge import ByggeError
 from bygge.cmd.commit_unchecked_cmd import commit_unchecked
@@ -87,9 +89,6 @@ def test_commit_unchecked(tmp_workspace: Workspace, mock_subprocess: MagicMock) 
 
 def test_init_creates_venv(tmp_workspace: Workspace, mock_subprocess: MagicMock) -> None:
     """Test init command creates virtual environment."""
-    # Remove the venv created by fixture
-    import shutil
-
     if tmp_workspace.venv_dir.exists():
         shutil.rmtree(tmp_workspace.venv_dir)
 
@@ -175,3 +174,123 @@ def test_init_with_requirements_file(tmp_workspace_dir: Path, mock_subprocess: M
         or "requirements" in str(call.args[0] if hasattr(call, "args") else call[0][0])  # pyright: ignore[reportAny]
     ]
     assert len(requirements_calls) > 0
+
+
+def test_init_python_version_exact_match(
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test init with .python-version that exactly matches current Python."""
+    shutil.rmtree(tmp_workspace_dir / ".venv")
+    actual = sys.version.split()[0]
+    _ = (tmp_workspace_dir / ".python-version").write_text(actual + "\n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    init(workspace=workspace, reinit=False, install=False, yes=True)
+
+    assert mock_subprocess.call_count >= 1
+
+
+def test_init_python_version_prefix_match(
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test init with .python-version that matches major.minor of current Python."""
+    shutil.rmtree(tmp_workspace_dir / ".venv")
+    major_minor = ".".join(sys.version.split()[0].split(".")[:2])
+    _ = (tmp_workspace_dir / ".python-version").write_text(major_minor + "\n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    init(workspace=workspace, reinit=False, install=False, yes=True)
+
+    assert mock_subprocess.call_count >= 1
+
+
+def test_init_python_version_mismatch(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
+    """Test init with .python-version that does not match current Python."""
+    shutil.rmtree(tmp_workspace_dir / ".venv")
+    _ = (tmp_workspace_dir / ".python-version").write_text("2.7\n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    with raises(ByggeError, match="Python version mismatch"):
+        init(workspace=workspace, reinit=False, install=False, yes=True)
+
+    mock_subprocess.assert_not_called()
+
+
+def test_init_existing_venv_skips_version_check(
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock, caplog: LogCaptureFixture
+) -> None:
+    """Test init with existing venv does not check .python-version."""
+    import logging
+
+    _ = (tmp_workspace_dir / ".python-version").write_text("2.7\n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    with caplog.at_level(logging.INFO):
+        init(workspace=workspace, reinit=False, install=False, yes=True)
+
+    assert "Using existing" in caplog.text
+
+
+def test_init_reinit_checks_python_version(
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test init with reinit checks .python-version before recreating venv."""
+    _ = (tmp_workspace_dir / ".python-version").write_text("2.7\n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    with raises(ByggeError, match="Python version mismatch"):
+        init(workspace=workspace, reinit=True, install=False, yes=True)
+
+
+def test_init_python_version_empty_file(
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock
+) -> None:
+    """Test init with empty .python-version file proceeds normally."""
+    shutil.rmtree(tmp_workspace_dir / ".venv")
+    _ = (tmp_workspace_dir / ".python-version").write_text("   \n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    init(workspace=workspace, reinit=False, install=False, yes=True)
+
+    assert mock_subprocess.call_count >= 1
+
+
+def test_init_python_version_no_file(tmp_workspace_dir: Path, mock_subprocess: MagicMock) -> None:
+    """Test init without .python-version file proceeds normally."""
+    shutil.rmtree(tmp_workspace_dir / ".venv")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    init(workspace=workspace, reinit=False, install=False, yes=True)
+
+    assert mock_subprocess.call_count >= 1
+
+
+def test_init_python_version_unreadable(
+    tmp_workspace_dir: Path, mock_subprocess: MagicMock, monkeypatch: MonkeyPatch
+) -> None:
+    """Test init with unreadable .python-version file raises ByggeError."""
+    shutil.rmtree(tmp_workspace_dir / ".venv")
+    python_version_path = tmp_workspace_dir / ".python-version"
+    _ = python_version_path.write_text("3.14\n")
+    workspace = Workspace.open(tmp_workspace_dir)
+    mock_subprocess.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    # Mock read_text to raise OSError
+    original_read_text = Path.read_text
+
+    def mock_read_text(self: Path, *args: object, **kwargs: object) -> str:
+        if self == python_version_path:
+            raise OSError("Permission denied")
+        return original_read_text(self, *args, **kwargs)  # pyright: ignore[reportArgumentType]
+
+    monkeypatch.setattr(Path, "read_text", mock_read_text)
+
+    with raises(ByggeError, match=r"Cannot read .*/\.python-version: Permission denied"):
+        init(workspace=workspace, reinit=False, install=False, yes=True)

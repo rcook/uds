@@ -4,12 +4,6 @@
 
 - Some basic stuff (unused return values etc.) not being detected
 
-## TODO007: Command to create symlinks or `.cmd` wrappers for all scripts
-
-## TODO009: We should respect the pinned Python version during `init`
-
-e.g. `.pydl.json`, `.python-version` etc.
-
 ## Done
 
 ### ~~TODO000: Generalization~~ (fixed)
@@ -32,4 +26,11 @@ e.g. `.pydl.json`, `.python-version` etc.
 
 ### ~~TODO006: Simple project (e.g. `wav-tool`) `init does not do pip install?~~ (fixed)
 
+### ~~TODO007: Command to create symlinks or `.cmd` wrappers for all scripts~~ (implemented)
+
 ### ~~TODO008: Command to create `pre-commit` hooks file~~ (fixed)
+
+### ~~TODO009: We should respect the pinned Python version during `init`~~ (implemented)
+
+e.g. `.pydl.json`, `.python-version` etc.
+
