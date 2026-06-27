@@ -9,8 +9,8 @@ from bygge.util.transformers import detect_quote_style, to_ascii_escapes
     "input, expected",
     [
         ("hello", "hello"),
-        ("shake hands with " + chr(0xBEEF), "shake hands with \\uBEEF"),
-        ("goodbye " + chr(0x10FFFF), "goodbye \\U0010FFFF"),
+        ("shake hands with " + chr(0xBEEF), "shake hands with \\ubeef"),
+        ("goodbye " + chr(0x10FFFF), "goodbye \\U0010ffff"),
     ],
 )
 def test_to_ascii_escapes(input: str, expected: str) -> None:

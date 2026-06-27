@@ -11,9 +11,9 @@ def to_ascii_escapes(s: str) -> str:
         if cp < 128:
             return c
         elif cp <= 0xFFFF:
-            return f"\\u{cp:04X}"
+            return f"\\u{cp:04x}"
         else:
-            return f"\\U{cp:08X}"
+            return f"\\U{cp:08x}"
 
     return "".join([escape(c) for c in s])
 
