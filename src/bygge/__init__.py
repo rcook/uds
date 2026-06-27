@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 
 
 class ByggeError(Exception):
