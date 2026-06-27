@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bygge"
-version = "0.1.8"
+version = "0.1.9"
 description = "Python project build and development tool - CLI for workspace management (Norwegian: 'to build')"
 requires-python = ">=3.14"
 license = "MIT"
@@ -84,7 +84,7 @@ ignore_decorators = ["@main.command"]
 paths = ["src"]
 
 [tool.bumpversion]
-current_version = "0.1.8"
+current_version = "0.1.9"
 commit = true
 tag = true
 tag_name = "v{new_version}"
